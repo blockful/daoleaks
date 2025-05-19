@@ -1,3 +1,4 @@
 [package]
-name = "circuit"
+name = "dao_leaks"
+authors = ["Jackson, Alekson"]
 type = "bin"

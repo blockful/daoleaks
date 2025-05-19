@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "nargo build",
+    "compile": "nargo compile",
     "test": "nargo test",
     "check": "nargo check",
     "compile": "nargo compile",

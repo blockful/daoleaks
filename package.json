@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
+    "front": "pnpm --filter front",
+    "circuits": "pnpm --filter circuits",
+    "contracts": "pnpm --filter contracts",
     "front:dev": "pnpm --filter front dev",
     "front:build": "pnpm --filter front build",
     "front:start": "pnpm --filter front start",
