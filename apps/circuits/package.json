@@ -1,0 +1,13 @@
+{
+  "name": "circuits",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "nargo build",
+    "test": "nargo test",
+    "check": "nargo check"
+  },
+  "devDependencies": {
+    "@noir-lang/noir": "^0.19.2"
+  }
+} 

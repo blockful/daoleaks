@@ -1,29 +1,19 @@
 {
-  "name": "dao-leaks",
-  "version": "0.1.0",
+  "name": "daoleaks",
   "private": true,
+  "version": "0.1.0",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
+    "front:dev": "pnpm --filter front dev",
+    "front:build": "pnpm --filter front build",
+    "front:start": "pnpm --filter front start",
+    "front:lint": "pnpm --filter front lint",
+    "circuits:build": "pnpm --filter circuits build",
+    "circuits:test": "pnpm --filter circuits test",
+    "contracts:build": "pnpm --filter contracts build",
+    "contracts:test": "pnpm --filter contracts test",
+    "contracts:deploy": "pnpm --filter contracts deploy"
   },
-  "dependencies": {
-    "@aztec/bb.js": "0.72.1",
-    "@noir-lang/noir_js": "1.0.0-beta.2",
-    "next": "15.3.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "15.3.2",
-    "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+  "workspaces": [
+    "apps/*"
+  ]
 }
