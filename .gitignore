@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# circuits
+/circuits/node_modules
+/apps/circuits/target
