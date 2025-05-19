@@ -7,7 +7,8 @@
     "test": "nargo test",
     "check": "nargo check"
   },
-  "devDependencies": {
-    "@noir-lang/noir": "^0.19.2"
+  "dependencies": {
+    "@aztec/bb.js": "0.72.1",
+    "@noir-lang/noir_js": "1.0.0-beta.2"
   }
-} 
+}
