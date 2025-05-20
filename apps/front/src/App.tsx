@@ -19,7 +19,7 @@ function App() {
       .map(b => b.toString(16).padStart(2, '0'))
       .join('')
   }
-
+    
   const handleSubmit = async () => {
     try {
       const noir = new Noir(circuit as any)
@@ -32,8 +32,9 @@ function App() {
       addLog("Generating proof... ⏳")
       const proofResult = await backend.generateProof(witness)
       addLog("Generated proof... ✅")
+
       setProof(toHex(proofResult.proof))
-      
+     
       addLog('Verifying proof... ⌛')
       const isValid = await backend.verifyProof(proofResult)
       addLog(`Proof is ${isValid ? "valid" : "invalid"}... ✅`)
