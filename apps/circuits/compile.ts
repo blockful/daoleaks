@@ -4,16 +4,19 @@ import Handlebars from "handlebars";
 import { execSync } from "child_process"; // Added to execute shell commands
 
 // Load template
-const templateSourceMain = fs.readFileSync(path.join(__dirname, "templates", "template.main.nr.hbs"), "utf-8");
+const templateSourceMain = fs.readFileSync(path.join(__dirname, "templates", "template.main.nr"), "utf-8");
 const templateMain = Handlebars.compile(templateSourceMain);
 
-const templateSourceNargo = fs.readFileSync(path.join(__dirname, "templates", "template.Nargo.toml.hbs"), "utf-8");
+const templateSourceNargo = fs.readFileSync(path.join(__dirname, "templates", "template.Nargo.toml"), "utf-8");
 const templateNargo = Handlebars.compile(templateSourceNargo);
+
+const MAX_DEPTH = 20;
+const TRIE_LENGTH = 532;
 
 // Generate code files for depths 1 to 20
 // Realistically, it's unlikely that we'll need more than 20 though the formal limit is 64
-for (let depth = 1; depth <= 20; depth++) {
-  const proofLength = depth * 532;
+for (let depth = 1; depth <= MAX_DEPTH; depth++) {
+  const proofLength = depth * TRIE_LENGTH;
 
   const outputMain = templateMain({ depth, proof_length: proofLength });
   const outputNargo = templateNargo({ depth, proof_length: proofLength });
