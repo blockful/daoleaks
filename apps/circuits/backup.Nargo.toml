@@ -1,4 +1,0 @@
-[package]
-name = "dao_leaks"
-authors = ["Jackson, Alekson"]
-type = "bin"
