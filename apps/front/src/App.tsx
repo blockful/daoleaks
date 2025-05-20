@@ -14,6 +14,12 @@ function App() {
     setLogs(prev => [...prev, content])
   }
 
+  const toHex = (buffer: Uint8Array): string => {
+    return '0x' + Array.from(buffer)
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
+  }
+
   const handleSubmit = async () => {
     try {
       const noir = new Noir(circuit as any)
@@ -26,7 +32,7 @@ function App() {
       addLog("Generating proof... ⏳")
       const proofResult = await backend.generateProof(witness)
       addLog("Generated proof... ✅")
-      setProof(String(proofResult.proof))
+      setProof(toHex(proofResult.proof))
       
       addLog('Verifying proof... ⌛')
       const isValid = await backend.verifyProof(proofResult)
