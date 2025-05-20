@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "compile": "nargo compile",
+    "compile": "ts-node compile.ts",
     "test": "nargo test",
     "check": "nargo check",
     "write_vk": "bb write_vk -b ./target/circuit.json -o ./target --oracle_hash keccak",
@@ -14,7 +14,9 @@
     "@aztec/bb.js": "0.72.1",
     "@noir-lang/noir_js": "1.0.0-beta.2",
     "@noir-lang/types": "1.0.0-beta.6",
+    "@types/node": "^22.15.19",
     "alchemy-sdk": "^2.1.1",
+    "handlebars": "^4.7.8",
     "ts-node": "^10.9.2",
     "viem": "^2.30.0"
   }
