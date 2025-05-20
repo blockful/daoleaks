@@ -7,7 +7,7 @@ import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, t
 import { mainnet } from "viem/chains";
 
 import fs from 'fs';
-
+import { getSignatureFromTransaction } from './getTxSingatureData';
 
 type StorageProof = {
     storage_proof: number[];
@@ -128,6 +128,9 @@ async function main() {
 
     // Calculate the storage slot for the delegate account nick.eth
     const delegateAccount = "0x983110309620D911731Ac0932219af06091b6744";
+    // Sample tx from delegate to fetch signature from
+    const txHash = "0x6443d2846aa4df6c79ed90200153b70a69664baa01f6349b3c05c699c63f1eaa";
+
     const calculatedMappingSlotForKey = calculateMappingSlot(delegateAccount, mappingSlot);
     console.log("calculatedSlot", calculatedMappingSlotForKey);
 
@@ -217,9 +220,13 @@ async function main() {
     const mappingSlotBytes = pad(toHex(mappingSlot), { size: 32 });
     const paddedMappingSlot = serialise(mappingSlotBytes);
 
-    // Convert delegate account to padded bytes - now properly padded to 32 bytes
-    const paddedAccountBytes = pad(delegateAccount as `0x${string}`, { size: 32 });
-    const paddedAccountAddress = serialise(paddedAccountBytes);
+    // Get sample signature data from delegate account
+    const signatureData = await getSignatureFromTransaction(txHash, delegateAccount);
+
+    if (!signatureData) {
+        console.error("Failed to get signature data");
+        return;
+    }
 
 
     const proofData = {
@@ -228,20 +235,9 @@ async function main() {
         storage_root: checkpointProofData.storage_root,
         padded_mapping_slot: paddedMappingSlot,
         padded_array_index: paddedArrayIndex,
-        public_key: [
-            114, 39, 29, 34, 73, 21, 180, 22,
-            159, 3, 253, 32, 87, 164, 219, 7,
-            9, 124, 46, 175, 252, 222, 186, 132,
-            143, 63, 249, 164, 47, 140, 23, 19,
-
-
-            232, 207, 173, 209, 28, 206, 89, 22,
-            77, 137, 141, 251, 161, 174, 239, 2,
-            215, 79, 162, 140, 62, 43, 246, 15,
-            37, 162, 158, 149, 184, 230, 140, 94
-        ],
-        message_hash:  [137, 170, 134, 165, 81, 27, 170, 177, 126, 235, 230, 162, 72, 166, 142, 102, 191, 19, 188, 141, 8, 243, 71, 149, 72, 182, 191, 186, 164, 79, 233, 205],
-        signature: [63, 235, 148, 113, 224, 189, 57, 115, 26, 164, 48, 254, 134, 9, 166, 67, 105, 188, 241, 229, 86, 145, 88, 161, 67, 148, 250, 164, 104, 1, 176, 245, 34, 84, 71, 202, 68, 198, 239, 144, 227, 182, 26, 144, 237, 26, 113, 17, 60, 23, 236, 109, 72, 211, 162, 214, 11, 195, 82, 151, 248, 80, 88, 11],
+        public_key: signatureData.noirInputs.public_key,
+        message_hash: signatureData.noirInputs.signed_hash,
+        signature: signatureData.noirInputs.signature
     }
 
     // Initialize Noir and the proving backend
