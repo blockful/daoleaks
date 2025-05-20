@@ -1,14 +1,13 @@
-import { Network, Alchemy } from "alchemy-sdk";
 import { UltraHonkBackend } from '@aztec/bb.js';
 // @ts-ignore -- ESM import works at runtime despite TypeScript warning
 import { Noir } from '@noir-lang/noir_js';
 import { CompiledCircuit } from '@noir-lang/types';
-import circuitData from "./target/dao_leaks.json";
 
 import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, toRlp } from "viem";
 import { mainnet } from "viem/chains";
 
-const circuit = circuitData as unknown as CompiledCircuit;
+import fs from 'fs';
+
 
 type StorageProof = {
     storage_proof: number[];
@@ -50,7 +49,6 @@ function serialise(val: string, pad: boolean = false) {
         x = x.padStart(64, '0')
     }
     const result = Array.from(Buffer.from(x, "hex"))
-    console.log("result length", result.length);
     return result;
 }
 
@@ -129,7 +127,7 @@ async function main() {
     const mappingSlot = 7;
 
     // Calculate the storage slot for the delegate account nick.eth
-    const delegateAccount = "0xb8c2C29ee19D8307cb7255e1Cd9CbDE883A267d5";
+    const delegateAccount = "0x983110309620D911731Ac0932219af06091b6744";
     const calculatedMappingSlotForKey = calculateMappingSlot(delegateAccount, mappingSlot);
     console.log("calculatedSlot", calculatedMappingSlotForKey);
 
@@ -144,7 +142,6 @@ async function main() {
 
 
     const arrayLengthProof = arrayLengthRes.storageProof[0];
-    console.log(arrayLengthRes);
 
     const arrayLength = hexToBigInt(arrayLengthProof.value);
     console.log(`Array length: ${arrayLength}`);
@@ -163,6 +160,8 @@ async function main() {
     // For dynamic arrays, elements are stored at keccak256(slot) + index
     const arrayElementSlot = calculateArrayElementSlot(calculatedMappingSlotForKey, indexToFetch);
 
+    console.log("arrayElementSlot", arrayElementSlot);
+
 
     // Now we need to fetch this slot to get the checkpoint data
     const checkpointRes = await client.request({
@@ -174,10 +173,7 @@ async function main() {
         ]
     });
 
-    console.log(`Checkpoint at index ${indexToFetch} proof result:`, checkpointRes);
-
     const checkpointProof = checkpointRes.storageProof[0];
-    console.log(`Checkpoint value: ${checkpointProof.value}`);
 
     // ERC20Votes.Checkpoint typically has two fields:
     // - fromBlock (uint32)
@@ -186,23 +182,29 @@ async function main() {
 
     // Let's decode the checkpoint
     const checkpointValue = checkpointProof.value;
+    console.log("raw checkpoint value", checkpointValue);
 
-    // The last 8 hex chars (4 bytes) for fromBlock (uint32)
-    const fromBlockHex = `0x${checkpointValue.slice(-8)}` as `0x${string}`;
-    // Everything except the last 8 hex chars for votes (uint224)
-    const votesHex = `0x${checkpointValue.slice(2, -8)}` as `0x${string}`;
+    if (checkpointValue === "0x0") {
+        console.log("Checkpoint value not initialized");
+    } else {
+        // The last 8 hex chars (4 bytes) for fromBlock (uint32)
+        const fromBlockHex = `0x${checkpointValue.slice(-8)}` as `0x${string}`;
+        // Everything except the last 8 hex chars for votes (uint224)
+        const votesHex = `0x${checkpointValue.slice(2, -8)}` as `0x${string}`;
 
-    const fromBlock = hexToBigInt(fromBlockHex);
-    const votes = hexToBigInt(votesHex);
+        const fromBlock = hexToBigInt(fromBlockHex);
+        const votes = hexToBigInt(votesHex);
 
-    console.log("fromBlock", fromBlock);
-    console.log("votes", votes);
+        console.log(`Decoded checkpoint: { fromBlock: ${fromBlock}, votes: ${votes} }`);
+    }
 
     // Print proof depths
     console.log("Account proof depth:", checkpointRes.accountProof.length);
     console.log("Account proof depth:", arrayLengthRes.accountProof.length);
     console.log("Storage proof depth checkpoint:", checkpointRes.storageProof[0].proof.length);
     console.log("Storage proof depth array length:", arrayLengthRes.storageProof[0].proof.length);
+
+    const depth = checkpointRes.storageProof[0].proof.length;
 
 
     const checkpointProofData = createSerialsFromProof(checkpointRes)[0];
@@ -222,7 +224,6 @@ async function main() {
 
     const proofData = {
         storage_proof: checkpointProofData.storage_proof,
-        // storage_key: checkpointProofData.storage_key,
         value: checkpointProofData.value,
         storage_root: checkpointProofData.storage_root,
         padded_mapping_slot: paddedMappingSlot,
@@ -231,6 +232,10 @@ async function main() {
     }
 
     // Initialize Noir and the proving backend
+    // Dynamically import the correct circuit file
+    const circuitData = fs.readFileSync(`./target/dao_leaks_depth_${depth}.json`, 'utf-8');
+    const circuit = JSON.parse(circuitData) as unknown as CompiledCircuit;
+
     const noir = new Noir(circuit);
     const backend = new UltraHonkBackend(circuit.bytecode);
 
@@ -239,15 +244,15 @@ async function main() {
         const { witness } = await noir.execute(proofData);
         console.log("Generated witness ✅");
 
-        console.log("Generating proof...");
-        const proof = await backend.generateProof(witness);
-        console.log("Generated proof ✅");
+        // console.log("Generating proof...");
+        // const proof = await backend.generateProof(witness);
+        // console.log("Generated proof ✅");
 
-        console.log("Verifying proof...");
-        const isValid = await backend.verifyProof(proof);
-        console.log(`Proof is ${isValid ? "valid ✅" : "invalid ❌"}`);
+        // console.log("Verifying proof...");
+        // const isValid = await backend.verifyProof(proof);
+        // console.log(`Proof is ${isValid ? "valid ✅" : "invalid ❌"}`);
 
-        return { proof, isValid };
+        // return { proof, isValid };
     } catch (error) {
         console.error("Error during proving:", error);
         throw error;
