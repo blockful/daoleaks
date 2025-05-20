@@ -6,12 +6,16 @@
     "compile": "nargo compile",
     "test": "nargo test",
     "check": "nargo check",
-    "compile": "nargo compile",
     "write_vk": "bb write_vk -b ./target/circuit.json -o ./target --oracle_hash keccak",
-    "write_solidity_verifier": "bb write_solidity_verifier -k ./target/vk -o ../contracts/src/Verifier.sol"
+    "write_solidity_verifier": "bb write_solidity_verifier -k ./target/vk -o ../contracts/src/Verifier.sol",
+    "generate-witness": "ts-node generateWitness.mts"
   },
-  "dependencies": {
+  "devDependencies": {
     "@aztec/bb.js": "0.72.1",
-    "@noir-lang/noir_js": "1.0.0-beta.2"
+    "@noir-lang/noir_js": "1.0.0-beta.2",
+    "@noir-lang/types": "1.0.0-beta.6",
+    "alchemy-sdk": "^2.1.1",
+    "ts-node": "^10.9.2",
+    "viem": "^2.30.0"
   }
 }
