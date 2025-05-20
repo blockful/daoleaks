@@ -9,6 +9,10 @@
     "front:lint": "pnpm --filter front lint",
     "circuits:build": "pnpm --filter circuits build",
     "circuits:test": "pnpm --filter circuits test",
+    "circuits:compile": "pnpm --filter circuits compile",
+    "circuits:check": "pnpm --filter circuits check",
+    "circuits:write_vk": "pnpm --filter circuits write_vk",
+    "circuits:write_solidity_verifier": "pnpm --filter circuits write_solidity_verifier",
     "contracts:build": "pnpm --filter contracts build",
     "contracts:test": "pnpm --filter contracts test",
     "contracts:deploy": "pnpm --filter contracts deploy"
