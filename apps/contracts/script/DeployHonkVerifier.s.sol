@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: Apache-2.0
-pragma solidity >=0.8.21 <0.9.0;
+pragma solidity >=0.8.21;
 
 import {Script} from "forge-std/Script.sol";
 import {HonkVerifier} from "../src/Verifier.sol";
