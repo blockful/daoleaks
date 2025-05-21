@@ -39,6 +39,27 @@ importers:
         specifier: ^2.30.0
         version: 2.30.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.22.4)
 
+  apps/contracts:
+    devDependencies:
+      '@aztec/bb.js':
+        specifier: 0.82.2
+        version: 0.82.2
+      '@noir-lang/noir_js':
+        specifier: 1.0.0-beta.2
+        version: 1.0.0-beta.2
+      '@noir-lang/types':
+        specifier: 1.0.0-beta.6
+        version: 1.0.0-beta.6
+      '@types/node':
+        specifier: ^22.15.19
+        version: 22.15.19
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@22.15.19)(typescript@5.8.3)
+      viem:
+        specifier: ^2.30.0
+        version: 2.30.0(bufferutil@4.0.9)(typescript@5.8.3)(utf-8-validate@5.0.10)(zod@3.22.4)
+
   apps/front:
     dependencies:
       '@aztec/bb.js':
