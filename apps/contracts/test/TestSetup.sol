@@ -125,4 +125,57 @@ contract TestSetup is Test {
         require(proof.length == 440 * 32, "Invalid proof length from env var");
         return proof;
     }
+
+    // Function to extract expected storage root from getPublicInputs
+    function getExpectedStorageRoot() internal pure returns (bytes32) {
+        bytes32[] memory publicInputs = getPublicInputs();
+        // According to the specification, the storage root should be in the first set of inputs
+        // Here we're reconstructing it from individual bytes
+        bytes memory rootBytes = new bytes(32);
+        for (uint i = 0; i < 32; i++) {
+            // Take the first 32 values and extract just the least significant byte from each
+            if (i < 32) {
+                rootBytes[i] = bytes1(uint8(uint256(publicInputs[i])));
+            }
+        }
+        return bytes32(rootBytes);
+    }
+    
+    // Function to extract expected message hash from getPublicInputs
+    function getExpectedMessageHash() internal pure returns (bytes32) {
+        bytes32[] memory publicInputs = getPublicInputs();
+        // According to the specification, the message hash should be in the second set of inputs
+        bytes memory hashBytes = new bytes(32);
+        for (uint i = 0; i < 32; i++) {
+            // Take the second 32 values (32-63) and extract just the least significant byte from each
+            if (32 + i < 64) {
+                hashBytes[i] = bytes1(uint8(uint256(publicInputs[32 + i])));
+            }
+        }
+        return bytes32(hashBytes);
+    }
+    
+    // Function to extract expected voting power level from getPublicInputs
+    function getExpectedVotingPowerLevel() internal pure returns (bytes32) {
+        bytes32[] memory publicInputs = getPublicInputs();
+        // According to the specification, the voting power should be in the third set of inputs
+        bytes memory powerBytes = new bytes(32);
+        for (uint i = 0; i < 32; i++) {
+            // Take the third 32 values (64-95) and extract just the least significant byte from each
+            if (64 + i < 96) {
+                powerBytes[i] = bytes1(uint8(uint256(publicInputs[64 + i])));
+            }
+        }
+        return bytes32(powerBytes);
+    }
+    
+    // Get a valid message for testing that would match the expected hash
+    function getMessage() internal pure returns (string memory) {
+        return "0x02f8cf018203ed841dcd6500844070862b830713eb940000000000572fa1d5fc39988ed0785af08b0d9980b8a47e5c4c080000000000000000000000000000000000000000000000000000000000000040069064e4d68b5b51667b8ff5604ba5eed9260574f85c6ed1c8b2b022ab305488000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000003635c9adc5dea0000000000000000000000000000000000000000000000000010f0cf064dd59200000c0";
+    }
+    
+    // Get a valid voting power level for testing that would match the expected value
+    function getVotingPowerLevel() internal pure returns (uint256) {
+        return 107272232544679272610965;
+    }
 } 

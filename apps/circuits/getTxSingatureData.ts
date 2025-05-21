@@ -96,6 +96,7 @@ export function getUnsignedTxFromTx(tx: Transaction): TransactionSerializable {
 export function getSignedMessageHash(tx: Transaction): `0x${string}` {
   const unsignedTx = getUnsignedTxFromTx(tx);
   const serialized = serializeTransaction(unsignedTx);
+  console.log("serialized", serialized);
   return keccak256(serialized);
 }
 

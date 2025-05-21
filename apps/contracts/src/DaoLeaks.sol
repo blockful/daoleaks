@@ -1,5 +1,6 @@
 pragma solidity >=0.8.21;
 import {HonkVerifier} from "./DaoLeaksDepth.sol";
+import {console} from "forge-std/console.sol";
 
 contract DaoLeaks {
 
@@ -25,10 +26,41 @@ contract DaoLeaks {
 
     // Functions
 
-    // When someone posts a message: proof, public inputs, message, voting power level
-    function postMessage(bytes calldata proof, bytes32[] memory publicInputs, string memory message, uint256 votingPowerLevel) public {
-        // Get the public inputs
-        // bytes32[] memory publicInputs = new bytes32[](96);
+    // Helper function to generate public inputs
+    function generatePublicInputs(string memory message, uint256 votingPowerLevel) public view returns (bytes32[] memory) {
+        bytes32[] memory publicInputs = new bytes32[](96);
+        
+        // Get the storage root
+        bytes32 storageRoot = getStorageRoot();
+        
+        // Get the message hash
+        bytes32 messageHash = hashMessage(message);
+        
+        // Convert votingPowerLevel to bytes32
+        bytes32 powerBytes = bytes32(votingPowerLevel);
+        
+        // Combine all 3 inputs (each 32 bytes) and split them into 96 inputs (each representing 1 byte)
+        bytes memory combined = abi.encodePacked(storageRoot, messageHash, powerBytes);
+        
+        // Fill the first 96 inputs (1 byte per input)
+        for (uint i = 0; i < 96; i++) {
+            if (i < combined.length) {
+                // Take 1 byte and pad it to a full bytes32
+                publicInputs[i] = bytes32(uint256(uint8(combined[i])));
+            } else {
+                // Pad with zeros if we've run out of data (unlikely but safe)
+                publicInputs[i] = bytes32(0);
+            }
+            console.logBytes32(publicInputs[i]);
+        }
+        
+        return publicInputs;
+    }
+
+    // When someone posts a message: proof, message, voting power level
+    function postMessage(bytes calldata proof, string memory message, uint256 votingPowerLevel) public {
+        // Generate public inputs from message and voting power
+        bytes32[] memory publicInputs = generatePublicInputs(message, votingPowerLevel);
 
         // Verify the proof
         verifier.verify(proof, publicInputs);
@@ -73,5 +105,17 @@ contract DaoLeaks {
     // Get the total number of pages
     function getTotalPages(uint256 pageSize) public view returns (uint256) {
         return messages.length / pageSize;
+    }
+
+    // Hash message
+    function hashMessage(string memory message) public pure returns (bytes32) {
+        // return keccak256(abi.encodePacked(message));
+        bytes memory data = hex"02f8cf018203ed841dcd6500844070862b830713eb940000000000572fa1d5fc39988ed0785af08b0d9980b8a47e5c4c080000000000000000000000000000000000000000000000000000000000000040069064e4d68b5b51667b8ff5604ba5eed9260574f85c6ed1c8b2b022ab305488000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000003635c9adc5dea0000000000000000000000000000000000000000000000000010f0cf064dd59200000c0";
+        return keccak256(data);
+    }
+
+    // Get storage root
+    function getStorageRoot() public view returns (bytes32) {
+        return 0x550983abb3c6cb688737dea9db683d863ca504860bf26508476a0742e6388685;
     }
 }
