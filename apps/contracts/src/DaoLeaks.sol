@@ -7,7 +7,7 @@ contract DaoLeaks {
     // State variables
     struct Message {
         string message;
-        uint256 votingPowerLevel;
+        bytes votingPowerLevel;
         uint256 timestamp;
     }
     Message[] public messages;
@@ -22,12 +22,12 @@ contract DaoLeaks {
     // Events
 
     // When someone posts a message: message, voting power, timestamp
-    event MessagePosted(string message, uint256 votingPowerLevel, uint256 timestamp);
+    event MessagePosted(string message, bytes votingPowerLevel, uint256 timestamp);
 
     // Functions
 
     // Helper function to generate public inputs
-    function generatePublicInputs(string memory message, uint256 votingPowerLevel) public view returns (bytes32[] memory) {
+    function generatePublicInputs(string memory message, bytes memory votingPowerLevel) public view returns (bytes32[] memory) {
         bytes32[] memory publicInputs = new bytes32[](96);
         
         // Get the storage root
@@ -37,7 +37,7 @@ contract DaoLeaks {
         bytes32 messageHash = hashMessage(message);
         
         // Convert votingPowerLevel to bytes32
-        bytes32 powerBytes = bytes32(votingPowerLevel);
+        bytes32 powerBytes = bytes32(abi.decode(votingPowerLevel, (uint256)));
         
         // Combine all 3 inputs (each 32 bytes) and split them into 96 inputs (each representing 1 byte)
         bytes memory combined = abi.encodePacked(storageRoot, messageHash, powerBytes);
@@ -58,7 +58,7 @@ contract DaoLeaks {
     }
 
     // When someone posts a message: proof, message, voting power level
-    function postMessage(bytes calldata proof, string memory message, uint256 votingPowerLevel) public {
+    function postMessage(bytes calldata proof, string memory message, bytes memory votingPowerLevel) public {
         // Generate public inputs from message and voting power
         bytes32[] memory publicInputs = generatePublicInputs(message, votingPowerLevel);
 

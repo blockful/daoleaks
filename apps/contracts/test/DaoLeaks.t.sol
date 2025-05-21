@@ -6,7 +6,7 @@ import {console} from "forge-std/console.sol";
 
 contract DaoLeaksTest is TestSetup {
     // Test events
-    event MessagePosted(string message, uint256 votingPowerLevel, uint256 timestamp);
+    event MessagePosted(string message, bytes votingPowerLevel, uint256 timestamp);
 
     function setUp() public override {
         super.setUp();
@@ -15,7 +15,7 @@ contract DaoLeaksTest is TestSetup {
     function testPostMessage() public {
         bytes memory proof = getValidProof();
         string memory message = getMessage();
-        uint256 votingPowerLevel = getVotingPowerLevel();
+        bytes memory votingPowerLevel = getVotingPowerLevel();
 
         // // Expect the MessagePosted event to be emitted
         // vm.expectEmit(true, true, true, true);
@@ -27,7 +27,7 @@ contract DaoLeaksTest is TestSetup {
         // Get all messages and verify the first one
         DaoLeaks.Message[] memory messages = daoLeaks.getMessages(0, 1);
         assertEq(messages[0].message, message, "Message content mismatch");
-        assertEq(messages[0].votingPowerLevel, votingPowerLevel, "Voting power level mismatch");
+        assertEq(keccak256(messages[0].votingPowerLevel), keccak256(votingPowerLevel), "Voting power level mismatch");
         assertGt(messages[0].timestamp, 0, "Timestamp should be set");
     }
     
@@ -39,7 +39,7 @@ contract DaoLeaksTest is TestSetup {
 
         // Generate inputs using our function
         string memory message = getMessage();
-        uint256 votingPower = getVotingPowerLevel();
+        bytes memory votingPower = getVotingPowerLevel();
         bytes32 storageRoot = daoLeaks.getStorageRoot();
         
         // Log expected values for debugging
@@ -49,7 +49,6 @@ contract DaoLeaksTest is TestSetup {
         console.logBytes32(storageRoot);
 
         console.log("--------------------------------");
-
 
         console.log("Expected Message Hash:");
         console.logBytes32(expectedHash);
@@ -62,9 +61,6 @@ contract DaoLeaksTest is TestSetup {
 
         console.log("Expected Voting Power:");
         console.logBytes32(expectedPower);
-        console.log("Voting Power used for generation:");
-        console.log(votingPower);
- 
         
         bytes32[] memory generatedInputs = daoLeaks.generatePublicInputs(message, votingPower);
         
