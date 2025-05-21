@@ -9,6 +9,17 @@ import { mainnet } from "viem/chains";
 import fs from 'fs';
 import { getSignatureFromTransaction } from './getTxSingatureData';
 
+import TOML from "@iarna/toml";
+
+
+const memoryUsage = process.memoryUsage();
+  
+  console.log('Memory Usage:');
+  console.log(`- RSS: ${Math.round(memoryUsage.rss / 1024 / 1024)} MB`);
+  console.log(`- Heap Total: ${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`);
+  console.log(`- Heap Used: ${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`);
+  console.log(`- External: ${Math.round(memoryUsage.external / 1024 / 1024)} MB`);
+
 type StorageProof = {
     storage_proof: number[];
     storage_key: number[]
@@ -247,6 +258,12 @@ async function main() {
         signature: signatureData.noirInputs.signature,
         voting_power_threshold: votingPowerThreshold
     }
+
+    console.log("Saving proofData to Prover.toml...");
+    const proofDataToml = TOML.stringify(proofData);
+    fs.writeFileSync("./Prover.toml", proofDataToml);
+    console.log("Saved proofData to Prover.toml ✅");
+
 
     // Initialize Noir and the proving backend
     // Dynamically import the correct circuit file
