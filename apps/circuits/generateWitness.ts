@@ -281,7 +281,7 @@ async function main() {
         console.log("Generated witness ✅");
 
         console.log("Generating proof...");
-        const proof = await backend.generateProof(witness);
+        const proof = await backend.generateProof(witness, { keccak: true });
         console.log("Generated proof ✅");
 
         console.log("Proof:", toHex(proof.proof));
@@ -290,7 +290,7 @@ async function main() {
         console.log("Proof public inputs length:", proof.publicInputs.length);
 
         console.log("Verifying proof...");
-        const isValid = await backend.verifyProof(proof);
+        const isValid = await backend.verifyProof(proof, { keccak: true });
         console.log(`Proof is ${isValid ? "valid ✅" : "invalid ❌"}`);
 
         return { proof, isValid };
