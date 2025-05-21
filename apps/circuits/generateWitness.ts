@@ -154,6 +154,8 @@ async function main() {
         ]
     });
 
+    console.log({contractAddress, calculatedMappingSlotForKey, blockNumber: toHex(BLOCK_NUMBER)});
+
 
     const arrayLengthProof = arrayLengthRes.storageProof[0];
 

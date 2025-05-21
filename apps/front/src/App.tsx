@@ -1,47 +1,30 @@
 import { useState } from 'react'
-import { UltraHonkBackend } from '@aztec/bb.js'
-import { Noir } from '@noir-lang/noir_js'
-// @ts-ignore
-import circuit from '../../circuits/target/circuit.json'
 import './App.css'
+import { fullFlow } from './lib/proof/fullflow'
+import { useClient } from 'wagmi'
+import { mainnet } from 'viem/chains'
+import type { PublicClient } from 'viem'
 
 function App() {
   const [age, setAge] = useState('')
-  const [logs, setLogs] = useState<string[]>([])
-  const [proof, setProof] = useState<string>('')
+  const [logs] = useState<string[]>([])
+  const [proof] = useState<string>('')
 
-  const addLog = (content: string) => {
-    setLogs(prev => [...prev, content])
-  }
+  const viemClient = useClient({ chainId: mainnet.id })
 
-  const toHex = (buffer: Uint8Array): string => {
-    return '0x' + Array.from(buffer)
-      .map(b => b.toString(16).padStart(2, '0'))
-      .join('')
-  }
+  
+  // const addLog = (content: string) => {
+  //   setLogs(prev => [...prev, content])
+  // }
+
+  // const toHex = (buffer: Uint8Array): string => {
+  //   return '0x' + Array.from(buffer)
+  //     .map(b => b.toString(16).padStart(2, '0'))
+  //     .join('')
+  // }
     
   const handleSubmit = async () => {
-    try {
-      const noir = new Noir(circuit as any)
-      const backend = new UltraHonkBackend(circuit.bytecode)
-      
-      addLog("Generating witness... ⏳")
-      const { witness } = await noir.execute({ age: parseInt(age) })
-      addLog("Generated witness... ✅")
-      
-      addLog("Generating proof... ⏳")
-      const proofResult = await backend.generateProof(witness)
-      addLog("Generated proof... ✅")
-
-      setProof(toHex(proofResult.proof))
-     
-      addLog('Verifying proof... ⌛')
-      const isValid = await backend.verifyProof(proofResult)
-      addLog(`Proof is ${isValid ? "valid" : "invalid"}... ✅`)
-    } catch (error) {
-      console.error("Error", error)
-      addLog("Oh 💔")
-    }
+    await fullFlow(viemClient as PublicClient);
   }
 
   return (
