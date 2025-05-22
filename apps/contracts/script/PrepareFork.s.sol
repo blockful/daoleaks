@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
 import "forge-std/Script.sol";
@@ -7,7 +8,7 @@ contract PrepareFork is Script {
     address ENS_TOKEN = 0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72;
     address ENS_WHALE = 0x690F0581eCecCf8389c223170778cD9D029606F2;
 
-    uint256 ENS_TRANSFER_AMOUNT = 10 * 10 ** 18;
+    uint256 ENS_TRANSFER_AMOUNT = 1000 * 10 ** 18;
 
     // Storage slot for _checkpoints mapping in ENS token contract
     uint256 constant CHECKPOINT_MAPPING_SLOT = 7;
@@ -57,10 +58,6 @@ contract PrepareFork is Script {
         uint256 votingPower = ERC20Votes(ENS_TOKEN).getVotes(fakeAccount);
         console.log("Voting power of fake account:", votingPower);
 
-        // eth_getProof for fake account
-        bytes32 mappingSlot = calculateMappingSlot(fakeAccount, CHECKPOINT_MAPPING_SLOT);
-        // console.log("Mapping slot:", mappingSlot);
-
         // sign message with fake account
         bytes32 hashV = keccak256("Signed by Alice");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(fakePk, hashV);
@@ -70,13 +67,12 @@ contract PrepareFork is Script {
 
         // Print fakeAccount
         console.log("Fake account:", fakeAccount);
-        
+
         // Print the message hash
         console.logBytes32(hashV);
         console.log("Message hash (hex):", vm.toString(hashV));
 
         // Print the signature
-        console.logBytes(signature);
         console.log("Signature length:", signature.length);
         console.log("Signature (hex):", vm.toString(signature));
 

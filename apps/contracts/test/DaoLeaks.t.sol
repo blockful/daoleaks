@@ -13,34 +13,35 @@ contract DaoLeaksTest is TestSetup {
     }
 
     function testPostMessage() public {
-        bytes memory proof = getValidProof();
-        string memory message = getMessage();
-        bytes memory votingPowerLevel = getVotingPowerLevel();
+        bytes memory proof = getProof();
+        string memory message = "Signed by Alice";
+        uint8 votingPowerLevel = 0;
+        uint256 storageProofDepth = getStorageProofDepth();
 
         // // Expect the MessagePosted event to be emitted
         // vm.expectEmit(true, true, true, true);
         // emit MessagePosted(message, votingPowerLevel, block.timestamp);
 
         // Post the message
-        daoLeaks.postMessage(proof, message, votingPowerLevel);
+        daoLeaks.postMessage(proof, message, votingPowerLevel, storageProofDepth);
 
         // Get all messages and verify the first one
         DaoLeaks.Message[] memory messages = daoLeaks.getMessages(0, 1);
         assertEq(messages[0].message, message, "Message content mismatch");
-        assertEq(keccak256(messages[0].votingPowerLevel), keccak256(votingPowerLevel), "Voting power level mismatch");
+        assertEq(keccak256(abi.encodePacked(messages[0].votingPowerLevel)), keccak256(abi.encodePacked(daoLeaks.getVotingPowerLevel(votingPowerLevel))), "Voting power level mismatch");
         assertGt(messages[0].timestamp, 0, "Timestamp should be set");
     }
     
-    function testComparePublicInputs() public {
+    function testComparePublicInputs() public view {
         // Get expected values
         bytes32 expectedRoot = getExpectedStorageRoot();
         bytes32 expectedHash = getExpectedMessageHash();
         bytes32 expectedPower = getExpectedVotingPowerLevel();
 
         // Generate inputs using our function
-        string memory message = getMessage();
-        bytes memory votingPower = getVotingPowerLevel();
-        bytes32 storageRoot = daoLeaks.getStorageRoot();
+        string memory message = "Signed by Alice";
+        uint224 votingPower = daoLeaks.getVotingPowerLevel(0);
+        bytes32 storageRoot = daoLeaks.storageRoot();
         
         // Log expected values for debugging
         console.log("Expected Storage Root:");

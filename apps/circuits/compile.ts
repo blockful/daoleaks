@@ -36,6 +36,21 @@ for (let depth = 1; depth <= MAX_DEPTH; depth++) {
     console.log(`Compiling for depth ${depth}...`);
     execSync("nargo compile", { stdio: 'inherit' });
     console.log(`Successfully compiled for depth ${depth}`);
+
+    const targetDir = path.join(__dirname, "target");
+    const jsonFile = path.join(targetDir, `dao_leaks_depth_${depth}.json`);
+    console.log(`Processing additional operations for depth ${depth}...`);
+    
+    // Generate target/vk
+    console.log("Generating verification key...");
+    execSync(`bb write_vk -b ${jsonFile} -o ${targetDir} --oracle_hash keccak`, { stdio: 'inherit' });
+    
+    // Generate Solidity verifier
+    const contractsDir = path.join(__dirname, "..", "contracts", "src", "verifiers");
+    console.log("Generating Solidity verifier...");
+    execSync(`bb write_solidity_verifier -k ${path.join(targetDir, "vk")} -o ${path.join(contractsDir, `DaoLeaksDepth${depth}.sol`)}`, { stdio: 'inherit' });
+    
+
   } catch (error) {
     console.error(`Compilation failed for depth ${depth}:`, error);
   } finally {

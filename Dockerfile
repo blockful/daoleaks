@@ -20,6 +20,9 @@ RUN apt-get update && apt-get install -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
+# Install pnpm
+RUN npm install -g pnpm
+
 # Create a non-root user to run the applications
 RUN useradd -m -s /bin/bash noir
 USER noir
