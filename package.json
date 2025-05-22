@@ -19,7 +19,9 @@
     "circuits:generate_witness": "pnpm --filter circuits generate-witness",
     "contracts:build": "pnpm --filter contracts build",
     "contracts:test": "pnpm --filter contracts test",
-    "contracts:deploy": "pnpm --filter contracts deploy"
+    "contracts:deploy": "pnpm --filter contracts deploy",
+    "build-prod": "pnpm --filter circuits compile && pnpm --filter contracts build && pnpm --filter front build",
+    "deploy-vercel:prod": "pnpm run build-prod && vercel deploy --prebuilt apps/front/dist"
   },
   "workspaces": [
     "apps/*"
