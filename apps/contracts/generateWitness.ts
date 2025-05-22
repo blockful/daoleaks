@@ -3,7 +3,7 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import { CompiledCircuit } from '@noir-lang/types';
 
-import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, toRlp, recoverPublicKey, toBytes } from "viem";
+import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, hashTypedData, recoverPublicKey, toBytes } from "viem";
 import { mainnet } from "viem/chains";
 
 import fs from 'fs';
@@ -80,6 +80,22 @@ function calculateArrayElementSlot(arraySlot: `0x${string}`, index: number): `0x
     return elementSlot;
 }
 
+//hash data using EIP-712 structured data format
+// Using the same types defined in the contract
+const domain = {
+    name: 'DaoLeaks',
+    version: '1',
+    chainId: 31337,
+    verifyingContract: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' as `0x${string}`
+  };
+  
+  // Define the types for the Message struct
+  const types = {
+    Message: [
+      { name: 'message', type: 'string' }
+    ]
+  };
+
 // Setup: npm install alchemy-sdk
 // Github: https://github.com/alchemyplatform/alchemy-sdk-js
 async function main() {
@@ -112,10 +128,19 @@ async function main() {
     const delegateAccount = "0x4320d597fBd545F8A747f61B209Cf9a106E02e94";
     // Sample tx from delegate to fetch signature from
     const msg = "Signed by Alice";
-    const msgHash = "0x385967023fb9520b497ee37da9c1e3d5faac1385800ce4ed07ca32d7893c7bb5";
-    const signature = "0xdafc88178ce64aec61f6199196b96385071f74359dc96b6d71691121ae7cd03338649ae8d4d598473a2557bef47af629ea188ec0170303c01b1e12fa2b6d2e411c";
+    const msgHash = "0x7583731d3163b5319d7c2345aba6fcdc80c1e3c3c5f1a480b1abb73ad277d154";
+    const signature = "0x35867925b39ccf14b96ef446dc608146e40fa54e2642a20cd6c7107fe13e14046e24d53543f7884ab8301c385c79f034f6ca7c51d57ac35c8aba411bba8d4ccf1c";
 
-    const verifyMsgHash = keccak256(toBytes(msg));
+    const verifyMsgHash = hashTypedData({
+        domain,
+        types,
+        primaryType: 'Message',
+        message: {
+          message: msg
+        }
+      });
+
+    // const verifyMsgHash = keccak256(toBytes(msg));
 
     const signature_64_bytes = signature.slice(0, -2);
 

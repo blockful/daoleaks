@@ -13,14 +13,27 @@ contract PrepareFork is Script {
     // Storage slot for _checkpoints mapping in ENS token contract
     uint256 constant CHECKPOINT_MAPPING_SLOT = 7;
 
-    /**
-     * @notice Calculate the storage slot for a mapping with address keys
-     * @param addr The address used as a key
-     * @param mappingSlot The slot of the mapping
-     * @return The calculated storage slot
-     */
     function calculateMappingSlot(address addr, uint256 mappingSlot) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(bytes32(uint256(uint160(addr))), bytes32(mappingSlot)));
+    }
+
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private constant MESSAGE_TYPEHASH = keccak256("Message(string message)");
+    bytes32 private DOMAIN_SEPARATOR = keccak256(
+        abi.encode(
+            EIP712_DOMAIN_TYPEHASH,
+            keccak256(bytes("DaoLeaks")), // name
+            keccak256(bytes("1")), // version
+            31337, // tightly coupled to tests
+            address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266) // tightly coupled to tests
+        )
+    );
+
+    function hashMessage(string memory message) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(MESSAGE_TYPEHASH, keccak256(bytes(message))));
+
+        return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
     }
 
     function run() public {
@@ -59,7 +72,7 @@ contract PrepareFork is Script {
         console.log("Voting power of fake account:", votingPower);
 
         // sign message with fake account
-        bytes32 hashV = keccak256("Signed by Alice");
+        bytes32 hashV = hashMessage("Signed by Alice");
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(fakePk, hashV);
         // console.log("Signature:", v, r, s);
 
