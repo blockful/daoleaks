@@ -3,8 +3,6 @@ import { mainnet } from "viem/chains";
 import { exec, execSync } from "child_process";
 import { promisify } from "util";
 
-const execAsync = promisify(exec);
-
 async function main() {
   // Create a public client to interact with the blockchain
   const client = createPublicClient({
@@ -49,7 +47,7 @@ async function main() {
   console.log("Storage Root at block", blockNumber, ":", storageRoot);
 
   // Call the Foundry script with the storage root as a parameter
-  console.log("Calling Foundry script PrepareForkStaging.s.sol...");
+  console.log("Calling Foundry script DeployToStaging.s.sol...");
   try {
     // Use execSync with stdio: 'inherit' to stream output directly to the terminal
     execSync(

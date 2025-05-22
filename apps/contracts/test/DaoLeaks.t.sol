@@ -17,6 +17,7 @@ contract DaoLeaksTest is TestSetup {
         string memory message = "Signed by Alice";
         uint8 votingPowerLevel = 0;
         uint256 storageProofDepth = getStorageProofDepth();
+        console.logUint(getStorageProofDepth());
 
         // // Expect the MessagePosted event to be emitted
         // vm.expectEmit(true, true, true, true);
@@ -62,6 +63,8 @@ contract DaoLeaksTest is TestSetup {
 
         console.log("Expected Voting Power:");
         console.logBytes32(expectedPower);
+        console.log("Voting Power from DaoLeaks contract:");
+        console.log(daoLeaks.getVotingPowerLevel(0));
         
         bytes32[] memory generatedInputs = daoLeaks.generatePublicInputs(message, votingPower);
         

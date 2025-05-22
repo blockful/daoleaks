@@ -74,11 +74,26 @@ contract TestSetup is Test {
         verifier20 = new HonkVerifierDepth20();
 
         address[] memory verifiers = new address[](20);
-        verifiers[0] = address(verifier1);
+        verifiers[0] = address(verifier1);       
         verifiers[1] = address(verifier2);
         verifiers[2] = address(verifier3);
         verifiers[3] = address(verifier4);
         verifiers[4] = address(verifier5);
+        verifiers[5] = address(verifier6);
+        verifiers[6] = address(verifier7);
+        verifiers[7] = address(verifier8);
+        verifiers[8] = address(verifier9);
+        verifiers[9] = address(verifier10);
+        verifiers[10] = address(verifier11);
+        verifiers[11] = address(verifier12);
+        verifiers[12] = address(verifier13);
+        verifiers[13] = address(verifier14);
+        verifiers[14] = address(verifier15);
+        verifiers[15] = address(verifier16);
+        verifiers[16] = address(verifier17);
+        verifiers[17] = address(verifier18);
+        verifiers[18] = address(verifier19);
+        verifiers[19] = address(verifier20);
 
         // Deploy DaoLeaks with the verifiers
         address targetAddress = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266); // Your desired address

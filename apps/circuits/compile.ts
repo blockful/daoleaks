@@ -10,12 +10,13 @@ const templateMain = Handlebars.compile(templateSourceMain);
 const templateSourceNargo = fs.readFileSync(path.join(__dirname, "templates", "template.Nargo.toml"), "utf-8");
 const templateNargo = Handlebars.compile(templateSourceNargo);
 
-const MAX_DEPTH = 20;
+const MAX_DEPTH = 2;
+const MIN_DEPTH = 2;
 const TRIE_LENGTH = 532;
 
 // Generate code files for depths 1 to 20
 // Realistically, it's unlikely that we'll need more than 20 though the formal limit is 64
-for (let depth = 1; depth <= MAX_DEPTH; depth++) {
+for (let depth = MIN_DEPTH; depth <= MAX_DEPTH; depth++) {
   const proofLength = depth * TRIE_LENGTH;
 
   const outputMain = templateMain({ depth, proof_length: proofLength });
@@ -50,6 +51,9 @@ for (let depth = 1; depth <= MAX_DEPTH; depth++) {
     console.log("Generating Solidity verifier...");
     execSync(`bb write_solidity_verifier -k ${path.join(targetDir, "vk")} -o ${path.join(contractsDir, `DaoLeaksDepth${depth}.sol`)}`, { stdio: 'inherit' });
     
+    // Remove verification key file after use
+    console.log("Removing verification key file...");
+    execSync(`rm -f ${path.join(targetDir, "vk")}`, { stdio: 'inherit' });
 
   } catch (error) {
     console.error(`Compilation failed for depth ${depth}:`, error);

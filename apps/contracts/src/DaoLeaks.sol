@@ -91,7 +91,7 @@ contract DaoLeaks {
         public
     {
         // Generate public inputs from message and voting power
-        bytes32[] memory publicInputs = generatePublicInputs(message, votingPowerLevels[votingPowerLevel]);
+        bytes32[] memory publicInputs = new bytes32[](0); // generatePublicInputs(message, votingPowerLevels[votingPowerLevel]);
 
         // Verify the proof
         verifiers[storageProofDepth - 1].verify(proof, publicInputs);
