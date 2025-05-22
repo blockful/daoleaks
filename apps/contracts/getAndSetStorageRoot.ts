@@ -20,7 +20,7 @@ async function main() {
   try {
     // Use execSync with stdio: 'inherit' to stream output directly to the terminal
     execSync(
-      `forge script script/PrepareForkTests.s.sol -v --rpc-url http://localhost:8545 --broadcast --unlocked`,
+      `forge script script/PrepareForkStaging.s.sol -v --rpc-url http://localhost:8545 --broadcast --unlocked`,
       { stdio: 'inherit' }
     );
     
@@ -53,11 +53,12 @@ async function main() {
   try {
     // Use execSync with stdio: 'inherit' to stream output directly to the terminal
     execSync(
-      `forge script script/DeployToStaging.s.sol -v --rpc-url http://localhost:8545 --broadcast --unlocked --sig "run(bytes32)" ${storageRoot} --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`,
+      `forge script script/DeployToStaging.s.sol --rpc-url http://localhost:8545 --broadcast --unlocked --sig "run(bytes32)" ${storageRoot} --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266`,
       { stdio: 'inherit' }
     );
     
     console.log("Foundry script executed successfully ✅");
+    console.log("Storage Root set successfully to:", storageRoot);
   } catch (error) {
     console.error("Error executing Foundry script:", error);
     throw error;

@@ -1,5 +1,5 @@
 // apps/front/src/lib/proof/sign-message.ts
-import { hashTypedData } from 'viem';
+import { hashTypedData, recoverPublicKey } from 'viem';
 import { useSignTypedData } from 'wagmi';
 
 
@@ -33,12 +33,16 @@ export function useSignMessage({ name, version, chainId, verifyingContract }: { 
             message
         };
 
-        return signTypedData({
+        signTypedData({
             domain,
             types,
             primaryType: 'Message',
             message: value
         });
+
+        const publicKey = await signatureUtils.recoverPublicKey(signature as `0x${string}`, getMessageHash(message));
+
+        return { signature, publicKey };
     };
 
     /**
@@ -84,7 +88,7 @@ export const signatureUtils = {
      * @param message The message to hash
      * @returns The typed data hash
      */
-    getMessageHash: (message: string, domain: {name: string, version: string, chainId: number, verifyingContract: `0x${string}`}): `0x${string}` => {
+    getMessageHash: (message: string, domain: { name: string, version: string, chainId: number, verifyingContract: `0x${string}` }): `0x${string}` => {
         return hashTypedData({
             domain,
             types,
@@ -93,5 +97,21 @@ export const signatureUtils = {
                 message
             }
         });
+    },
+
+    /**
+     * Recover the public key from a signature and message hash
+     * @param signature The full signature with recovery byte
+     * @param messageHash The hash of the message that was signed
+     * @returns The recovered public key (full 64 bytes without the prefix)
+     */
+    recoverPublicKey: async (signature: string, messageHash: `0x${string}`): Promise<string> => {
+        const publicKey = await recoverPublicKey({
+            hash: messageHash,
+            signature: signature as `0x${string}`
+        });
+
+        // Remove the '0x04' prefix to get the 64-byte (128 hex char) key
+        return `0x${publicKey.slice(4, 132)}` as `0x${string}`;
     }
 };
