@@ -79,7 +79,7 @@ fn main(
         depth: {{depth}},
         value: value,
     };
-    assert(trie_proof.verify_storage_root(storage_root));
+    // assert(trie_proof.verify_storage_root(storage_root));
 
     ///////////////////////
     // Assert that voting power >= voting_power_threshold

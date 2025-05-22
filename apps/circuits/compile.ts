@@ -10,8 +10,8 @@ const templateMain = Handlebars.compile(templateSourceMain);
 const templateSourceNargo = fs.readFileSync(path.join(__dirname, "templates", "template.Nargo.toml"), "utf-8");
 const templateNargo = Handlebars.compile(templateSourceNargo);
 
-const MAX_DEPTH = 2;
-const MIN_DEPTH = 2;
+const MAX_DEPTH = 20;
+const MIN_DEPTH = 1;
 const TRIE_LENGTH = 532;
 
 // Generate code files for depths 1 to 20

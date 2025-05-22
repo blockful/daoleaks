@@ -44,3 +44,6 @@ next-env.d.ts
 
 /apps/circuits/node_modules
 /apps/circuits/target
+
+# apps/contracts/src/verifiers/*
+# !apps/contracts/src/verifiers/.gitkeep
