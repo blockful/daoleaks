@@ -8,7 +8,7 @@
     "prepare-tests": "forge script script/PrepareForkTests.s.sol -v --rpc-url http://localhost:8545 --broadcast --unlocked",
     "forge-test": "forge test --force",
     "test": "pnpm run anvil & sleep 5 && pnpm run prepare-tests && forge test && pnpm run cleanup",
-    "setup-devnet": "pnpm run anvil & sleep 5 && (pnpm run deploy-to-devnet || (pnpm run cleanup && exit 1))",
+    "setup-devnet": "pnpm run cleanup && pnpm run anvil & sleep 5 && (pnpm run deploy-to-devnet || (pnpm run cleanup && exit 1))",
     "deploy-to-devnet": "ts-node getAndSetStorageRoot.ts",
     "cleanup": "killall anvil || true"
   },
