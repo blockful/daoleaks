@@ -3,7 +3,6 @@ pragma solidity >=0.8.21;
 
 import {HonkVerifier} from "./verifiers/DaoLeaksDepth1.sol";
 
-import {console} from "forge-std/console.sol";
 
 contract DaoLeaks {
     // State variables
@@ -35,20 +34,15 @@ contract DaoLeaks {
     bytes32 public lastStorageRoot;
     uint256 public storageRootMaxAge = 86400;
 
-    // bytes32 public storageRoot;
-
     // Constructor
     constructor(address[] memory _verifiers, bytes32 _storageRoot, uint256 _blockNumber, uint256 _timestamp) {
         for (uint256 i = 0; i < _verifiers.length; i++) {
             verifiers.push(HonkVerifier(_verifiers[i]));
         }
 
-        // storageRoot = _storageRoot;
-
         lastStorageRoot = _storageRoot;
         storageRoots[_storageRoot] =
             StorageRoot({storageRoot: _storageRoot, blockNumber: _blockNumber, timestamp: _timestamp});
-
         votingPowerLevels[0] = 1_000 * 10 ** 18;
         votingPowerLevels[1] = 10_000 * 10 ** 18;
         votingPowerLevels[2] = 50_000 * 10 ** 18;

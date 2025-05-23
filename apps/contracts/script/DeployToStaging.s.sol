@@ -54,7 +54,7 @@ contract DeployToStaging is Script {
         verifiers[19] = address(new HonkVerifierDepth20());
 
         // Deploy DaoLeaks contract with verifiers and storage root
-        DaoLeaks daoLeaks = new DaoLeaks(verifiers, storageRoot);
+        DaoLeaks daoLeaks = new DaoLeaks(verifiers, storageRoot, block.number, block.timestamp);
         console.log("DaoLeaks deployed at:", address(daoLeaks));
 
         vm.stopBroadcast();
