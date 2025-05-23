@@ -3,11 +3,12 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import { CompiledCircuit } from '@noir-lang/types';
 
-import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, hashTypedData, recoverPublicKey, toBytes } from "viem";
-import { mainnet } from "viem/chains";
+import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, hashTypedData, recoverPublicKey, toBytes, createWalletClient } from "viem";
+import { baseSepolia, mainnet } from "viem/chains";
 
 import fs from 'fs';
 import path from 'path';
+import { privateKeyToAccount } from 'viem/accounts';
 
 type StorageProof = {
     storage_proof: number[];
@@ -80,13 +81,35 @@ function calculateArrayElementSlot(arraySlot: `0x${string}`, index: number): `0x
     return elementSlot;
 }
 
+async function signMessage(message: string, privateKey: `0x${string}`) {
+    // Create account from private key
+    const account = privateKeyToAccount(privateKey);
+    
+    // Hash the typed data first
+    const hash = hashTypedData({
+        domain,
+        types,
+        primaryType: 'Message',
+        message: {
+            message: message
+        }
+    });
+
+    // Sign the hash directly using the account's signMessage method
+    const signature = await account.signMessage({
+        message: { raw: hash }
+    });
+
+    return signature;
+}
+
 //hash data using EIP-712 structured data format
 // Using the same types defined in the contract
 const domain = {
     name: 'DaoLeaks',
     version: '1',
-    chainId: 31337,
-    verifyingContract: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' as `0x${string}`
+    chainId: 84532,
+    verifyingContract: '0x65cC4D5f790dF736cD54d675d9280c056d640b22' as `0x${string}`
   };
   
   // Define the types for the Message struct
@@ -105,7 +128,7 @@ async function main() {
     const client = createPublicClient({
         chain: mainnet,
         // transport: http("https://eth-mainnet.g.alchemy.com/v2/864ae0IHj8rlKM2OHei4_1CzTV3xUdB5")
-        transport: http("http://localhost:8545")
+        transport: http("https://base-sepolia.g.alchemy.com/v2/864ae0IHj8rlKM2OHei4_1CzTV3xUdB5")
     });
 
 
@@ -120,18 +143,16 @@ async function main() {
 
 
     // ENS token contract
-    const contractAddress = "0xC18360217D8F7Ab5e7c516566761Ea12Ce7F9D72";
+    const contractAddress = "0x1C9039Be216f35291B2bCf67E5aB1F668db58Ac0";
     // Slot for _checkpoints mapping is 7
     const mappingSlot = 7;
 
     // Calculate the storage slot for our test account
-    const delegateAccount = "0x4320d597fBd545F8A747f61B209Cf9a106E02e94";
+    const delegateAccount = "0xCc5fccF9dd64b5E26bc3401407201BDB558C7619";
     // Sample tx from delegate to fetch signature from
     const msg = "Signed by Alice";
-    const msgHash = "0x7583731d3163b5319d7c2345aba6fcdc80c1e3c3c5f1a480b1abb73ad277d154";
-    const signature = "0x35867925b39ccf14b96ef446dc608146e40fa54e2642a20cd6c7107fe13e14046e24d53543f7884ab8301c385c79f034f6ca7c51d57ac35c8aba411bba8d4ccf1c";
 
-    const verifyMsgHash = hashTypedData({
+    const msgHash = hashTypedData({
         domain,
         types,
         primaryType: 'Message',
@@ -140,19 +161,16 @@ async function main() {
         }
       });
 
+    const privateKey = "0x69df72b7900cec6abe0c0d2e06638ca7ec08e7718bd676208cf046de6d2f6d6d";
+    const signature = await signMessage(msgHash, privateKey);
+
     // const verifyMsgHash = keccak256(toBytes(msg));
 
     const signature_64_bytes = signature.slice(0, -2);
 
-    if (verifyMsgHash !== msgHash) {
-        console.log("Message hash does not match");
-        console.log("verifyMsgHash", verifyMsgHash);
-        console.log("msgHash", msgHash);
-        return;
-    }
 
     const publicKey = await recoverPublicKey({
-        hash: verifyMsgHash,
+        hash: msgHash,
         signature: signature
     });
     const publicKeyFull = `0x${publicKey.slice(4, 132)}` as `0x${string}`;

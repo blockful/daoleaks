@@ -51,37 +51,35 @@ contract TestSetup is Test {
     DaoLeaks public daoLeaks;
 
     function setUp() public virtual {
-        // Deploy a new instance of HonkVerifier for testing
-        verifier1 = new HonkVerifierDepth1();
-        verifier2 = new HonkVerifierDepth2();
-        verifier3 = new HonkVerifierDepth3();
-        verifier4 = new HonkVerifierDepth4();
-        verifier5 = new HonkVerifierDepth5();
-        verifier6 = new HonkVerifierDepth6();
-        verifier7 = new HonkVerifierDepth7();
-        verifier8 = new HonkVerifierDepth8();
-        verifier9 = new HonkVerifierDepth9();
-        verifier10 = new HonkVerifierDepth10();
-        verifier11 = new HonkVerifierDepth11();
-        verifier12 = new HonkVerifierDepth12();
-        verifier13 = new HonkVerifierDepth13();
-        verifier14 = new HonkVerifierDepth14();
-        verifier15 = new HonkVerifierDepth15();
-        verifier16 = new HonkVerifierDepth16();
-        verifier17 = new HonkVerifierDepth17();
-        verifier18 = new HonkVerifierDepth18();
-        verifier19 = new HonkVerifierDepth19();
-        verifier20 = new HonkVerifierDepth20();
+        vm.chainId(84532);
 
+        // Deploy a new instance of HonkVerifier for testing
         address[] memory verifiers = new address[](20);
-        verifiers[0] = address(verifier1);
-        verifiers[1] = address(verifier2);
-        verifiers[2] = address(verifier3);
-        verifiers[3] = address(verifier4);
-        verifiers[4] = address(verifier5);
+        verifiers[0] = address(new HonkVerifierDepth1());
+        verifiers[1] = address(new HonkVerifierDepth2());
+        verifiers[2] = address(new HonkVerifierDepth3());
+        verifiers[3] = address(new HonkVerifierDepth4());
+        verifiers[4] = address(new HonkVerifierDepth5());
+        verifiers[5] = address(new HonkVerifierDepth6());
+        verifiers[6] = address(new HonkVerifierDepth7());
+        verifiers[7] = address(new HonkVerifierDepth8());
+        verifiers[8] = address(new HonkVerifierDepth9());
+        verifiers[9] = address(new HonkVerifierDepth10());
+        verifiers[10] = address(new HonkVerifierDepth11());
+        verifiers[11] = address(new HonkVerifierDepth12());
+        verifiers[12] = address(new HonkVerifierDepth13());
+        verifiers[13] = address(new HonkVerifierDepth14());
+        verifiers[14] = address(new HonkVerifierDepth15());
+        verifiers[15] = address(new HonkVerifierDepth16());
+        verifiers[16] = address(new HonkVerifierDepth17());
+        verifiers[17] = address(new HonkVerifierDepth18());
+        verifiers[18] = address(new HonkVerifierDepth19());
+        verifiers[19] = address(new HonkVerifierDepth20());
+        
+    
 
         // Deploy DaoLeaks with the verifiers
-        address targetAddress = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266); // Your desired address
+        address targetAddress = address(0x65cC4D5f790dF736cD54d675d9280c056d640b22); // Your desired address
 
         bytes memory args = abi.encode(verifiers, getExpectedStorageRoot());
     
