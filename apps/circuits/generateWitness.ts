@@ -261,6 +261,15 @@ async function main() {
         voting_power_threshold: votingPowerThreshold
     }
 
+    // Convert number arrays to hex strings
+    const storageRootHex = '0x' + proofData.storage_root.map(num => num.toString(16).padStart(2, '0')).join('');
+    const messageHashHex = '0x' + proofData.message_hash.map(num => num.toString(16).padStart(2, '0')).join('');
+    const votingPowerThresholdHex = '0x' + proofData.voting_power_threshold.map(num => num.toString(16).padStart(2, '0')).join('');
+    
+    console.log("proofData storage_root (hex):", storageRootHex);
+    console.log("proofData message_hash (hex):", messageHashHex);
+    console.log("proofData voting_power_threshold (hex):", votingPowerThresholdHex);
+    
     console.log("Saving proofData to Prover.toml...");
     const proofDataToml = TOML.stringify(proofData);
     fs.writeFileSync("./Prover.toml", proofDataToml);
