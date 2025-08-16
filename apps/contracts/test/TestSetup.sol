@@ -2,137 +2,121 @@
 pragma solidity >=0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {HonkVerifier} from "../src/DaoLeaksDepth.sol";
+import {console} from "forge-std/console.sol";
+
+import {HonkVerifier as HonkVerifierDepth1} from "../src/verifiers/DaoLeaksDepth1.sol";
+import {HonkVerifier as HonkVerifierDepth2} from "../src/verifiers/DaoLeaksDepth2.sol";
+import {HonkVerifier as HonkVerifierDepth3} from "../src/verifiers/DaoLeaksDepth3.sol";
+import {HonkVerifier as HonkVerifierDepth4} from "../src/verifiers/DaoLeaksDepth4.sol";
+import {HonkVerifier as HonkVerifierDepth5} from "../src/verifiers/DaoLeaksDepth5.sol";
+import {HonkVerifier as HonkVerifierDepth6} from "../src/verifiers/DaoLeaksDepth6.sol";
+import {HonkVerifier as HonkVerifierDepth7} from "../src/verifiers/DaoLeaksDepth7.sol";
+import {HonkVerifier as HonkVerifierDepth8} from "../src/verifiers/DaoLeaksDepth8.sol";
+import {HonkVerifier as HonkVerifierDepth9} from "../src/verifiers/DaoLeaksDepth9.sol";
+import {HonkVerifier as HonkVerifierDepth10} from "../src/verifiers/DaoLeaksDepth10.sol";
+import {HonkVerifier as HonkVerifierDepth11} from "../src/verifiers/DaoLeaksDepth11.sol";
+import {HonkVerifier as HonkVerifierDepth12} from "../src/verifiers/DaoLeaksDepth12.sol";
+import {HonkVerifier as HonkVerifierDepth13} from "../src/verifiers/DaoLeaksDepth13.sol";
+import {HonkVerifier as HonkVerifierDepth14} from "../src/verifiers/DaoLeaksDepth14.sol";
+import {HonkVerifier as HonkVerifierDepth15} from "../src/verifiers/DaoLeaksDepth15.sol";
+import {HonkVerifier as HonkVerifierDepth16} from "../src/verifiers/DaoLeaksDepth16.sol";
+import {HonkVerifier as HonkVerifierDepth17} from "../src/verifiers/DaoLeaksDepth17.sol";
+import {HonkVerifier as HonkVerifierDepth18} from "../src/verifiers/DaoLeaksDepth18.sol";
+import {HonkVerifier as HonkVerifierDepth19} from "../src/verifiers/DaoLeaksDepth19.sol";
+import {HonkVerifier as HonkVerifierDepth20} from "../src/verifiers/DaoLeaksDepth20.sol";
+
 import {DaoLeaks} from "../src/DaoLeaks.sol";
 
 contract TestSetup is Test {
-    HonkVerifier public verifier;
+    HonkVerifierDepth1 public verifier1;
+    HonkVerifierDepth2 public verifier2;
+    HonkVerifierDepth3 public verifier3;
+    HonkVerifierDepth4 public verifier4;
+    HonkVerifierDepth5 public verifier5;
+    HonkVerifierDepth6 public verifier6;
+    HonkVerifierDepth7 public verifier7;
+    HonkVerifierDepth8 public verifier8;
+    HonkVerifierDepth9 public verifier9;
+    HonkVerifierDepth10 public verifier10;
+    HonkVerifierDepth11 public verifier11;
+    HonkVerifierDepth12 public verifier12;
+    HonkVerifierDepth13 public verifier13;
+    HonkVerifierDepth14 public verifier14;
+    HonkVerifierDepth15 public verifier15;
+    HonkVerifierDepth16 public verifier16;
+    HonkVerifierDepth17 public verifier17;
+    HonkVerifierDepth18 public verifier18;
+    HonkVerifierDepth19 public verifier19;
+    HonkVerifierDepth20 public verifier20;
     DaoLeaks public daoLeaks;
-    
+
     function setUp() public virtual {
         // Deploy a new instance of HonkVerifier for testing
-        verifier = new HonkVerifier();
-        // Deploy DaoLeaks with the verifier
-        daoLeaks = new DaoLeaks(address(verifier));
+        verifier1 = new HonkVerifierDepth1();
+        verifier2 = new HonkVerifierDepth2();
+        verifier3 = new HonkVerifierDepth3();
+        verifier4 = new HonkVerifierDepth4();
+        verifier5 = new HonkVerifierDepth5();
+        verifier6 = new HonkVerifierDepth6();
+        verifier7 = new HonkVerifierDepth7();
+        verifier8 = new HonkVerifierDepth8();
+        verifier9 = new HonkVerifierDepth9();
+        verifier10 = new HonkVerifierDepth10();
+        verifier11 = new HonkVerifierDepth11();
+        verifier12 = new HonkVerifierDepth12();
+        verifier13 = new HonkVerifierDepth13();
+        verifier14 = new HonkVerifierDepth14();
+        verifier15 = new HonkVerifierDepth15();
+        verifier16 = new HonkVerifierDepth16();
+        verifier17 = new HonkVerifierDepth17();
+        verifier18 = new HonkVerifierDepth18();
+        verifier19 = new HonkVerifierDepth19();
+        verifier20 = new HonkVerifierDepth20();
+
+        address[] memory verifiers = new address[](20);
+        verifiers[0] = address(verifier1);
+        verifiers[1] = address(verifier2);
+        verifiers[2] = address(verifier3);
+        verifiers[3] = address(verifier4);
+        verifiers[4] = address(verifier5);
+        
+
+        // Deploy DaoLeaks with the verifiers
+        daoLeaks = new DaoLeaks(
+            verifiers,
+            0xc2222d834d467d4ebdb3db337a0974dac12e00cad5d2aa2050c7bf570ad728eb
+        );
     }
 
-    function getPublicInputs() internal pure returns (bytes32[] memory) {
+    function getPublicInputs() internal view returns (bytes32[] memory) {
+        bytes memory rawInput = vm.envBytes("HONK_PUBLIC_INPUTS");
         bytes32[] memory publicInputs = new bytes32[](96);
-        
-        publicInputs[0] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000055);
-        publicInputs[1] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000009);
-        publicInputs[2] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000083);
-        publicInputs[3] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000ab);
-        publicInputs[4] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000b3);
-        publicInputs[5] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000c6);
-        publicInputs[6] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000cb);
-        publicInputs[7] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000068);
-        publicInputs[8] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000087);
-        publicInputs[9] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000037);
-        publicInputs[10] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000de);
-        publicInputs[11] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a9);
-        publicInputs[12] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000db);
-        publicInputs[13] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000068);
-        publicInputs[14] = bytes32(0x000000000000000000000000000000000000000000000000000000000000003d);
-        publicInputs[15] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000086);
-        publicInputs[16] = bytes32(0x000000000000000000000000000000000000000000000000000000000000003c);
-        publicInputs[17] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a5);
-        publicInputs[18] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000004);
-        publicInputs[19] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000086);
-        publicInputs[20] = bytes32(0x000000000000000000000000000000000000000000000000000000000000000b);
-        publicInputs[21] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000f2);
-        publicInputs[22] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000065);
-        publicInputs[23] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000008);
-        publicInputs[24] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000047);
-        publicInputs[25] = bytes32(0x000000000000000000000000000000000000000000000000000000000000006a);
-        publicInputs[26] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000007);
-        publicInputs[27] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000042);
-        publicInputs[28] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000e6);
-        publicInputs[29] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000038);
-        publicInputs[30] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000086);
-        publicInputs[31] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000085);
-        publicInputs[32] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000089);
-        publicInputs[33] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000aa);
-        publicInputs[34] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000086);
-        publicInputs[35] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a5);
-        publicInputs[36] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000051);
-        publicInputs[37] = bytes32(0x000000000000000000000000000000000000000000000000000000000000001b);
-        publicInputs[38] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000aa);
-        publicInputs[39] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000b1);
-        publicInputs[40] = bytes32(0x000000000000000000000000000000000000000000000000000000000000007e);
-        publicInputs[41] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000eb);
-        publicInputs[42] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000e6);
-        publicInputs[43] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a2);
-        publicInputs[44] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000048);
-        publicInputs[45] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a6);
-        publicInputs[46] = bytes32(0x000000000000000000000000000000000000000000000000000000000000008e);
-        publicInputs[47] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000066);
-        publicInputs[48] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000bf);
-        publicInputs[49] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000013);
-        publicInputs[50] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000bc);
-        publicInputs[51] = bytes32(0x000000000000000000000000000000000000000000000000000000000000008d);
-        publicInputs[52] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000008);
-        publicInputs[53] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000f3);
-        publicInputs[54] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000047);
-        publicInputs[55] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000095);
-        publicInputs[56] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000048);
-        publicInputs[57] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000b6);
-        publicInputs[58] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000bf);
-        publicInputs[59] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000ba);
-        publicInputs[60] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000a4);
-        publicInputs[61] = bytes32(0x000000000000000000000000000000000000000000000000000000000000004f);
-        publicInputs[62] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000e9);
-        publicInputs[63] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000cd);
-        publicInputs[64] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[65] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[66] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[67] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[68] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[69] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[70] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[71] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[72] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[73] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[74] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[75] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[76] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[77] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[78] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[79] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[80] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[81] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[82] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000016);
-        publicInputs[83] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000b7);
-        publicInputs[84] = bytes32(0x000000000000000000000000000000000000000000000000000000000000003d);
-        publicInputs[85] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000047);
-        publicInputs[86] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000ea);
-        publicInputs[87] = bytes32(0x00000000000000000000000000000000000000000000000000000000000000bd);
-        publicInputs[88] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000041);
-        publicInputs[89] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000093);
-        publicInputs[90] = bytes32(0x000000000000000000000000000000000000000000000000000000000000007c);
-        publicInputs[91] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000095);
-        publicInputs[92] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[93] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[94] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        publicInputs[95] = bytes32(0x0000000000000000000000000000000000000000000000000000000000000000);
-        
+
+        for (uint256 i = 0; i < publicInputs.length; i++) {
+            publicInputs[i] = bytes32(uint256(uint8(rawInput[i])));
+        }
         return publicInputs;
     }
 
-    function getValidProof() internal view returns (bytes memory) {
+    function getProof() internal view returns (bytes memory) {
         // Get proof from environment variable
         bytes memory proof = vm.envBytes("HONK_PROOF");
         require(proof.length == 440 * 32, "Invalid proof length from env var");
         return proof;
     }
 
+    function getStorageProofDepth() internal view returns (uint256) {
+        uint256 storageProofDepth = vm.envUint("STORAGE_PROOF_DEPTH");
+        return storageProofDepth;
+    }
+
     // Function to extract expected storage root from getPublicInputs
-    function getExpectedStorageRoot() internal pure returns (bytes32) {
+    function getExpectedStorageRoot() internal view returns (bytes32) {
         bytes32[] memory publicInputs = getPublicInputs();
         // According to the specification, the storage root should be in the first set of inputs
         // Here we're reconstructing it from individual bytes
         bytes memory rootBytes = new bytes(32);
-        for (uint i = 0; i < 32; i++) {
+        for (uint256 i = 0; i < 32; i++) {
             // Take the first 32 values and extract just the least significant byte from each
             if (i < 32) {
                 rootBytes[i] = bytes1(uint8(uint256(publicInputs[i])));
@@ -140,13 +124,13 @@ contract TestSetup is Test {
         }
         return bytes32(rootBytes);
     }
-    
+
     // Function to extract expected message hash from getPublicInputs
-    function getExpectedMessageHash() internal pure returns (bytes32) {
+    function getExpectedMessageHash() internal view returns (bytes32) {
         bytes32[] memory publicInputs = getPublicInputs();
         // According to the specification, the message hash should be in the second set of inputs
         bytes memory hashBytes = new bytes(32);
-        for (uint i = 0; i < 32; i++) {
+        for (uint256 i = 0; i < 32; i++) {
             // Take the second 32 values (32-63) and extract just the least significant byte from each
             if (32 + i < 64) {
                 hashBytes[i] = bytes1(uint8(uint256(publicInputs[32 + i])));
@@ -154,13 +138,13 @@ contract TestSetup is Test {
         }
         return bytes32(hashBytes);
     }
-    
+
     // Function to extract expected voting power level from getPublicInputs
-    function getExpectedVotingPowerLevel() internal pure returns (bytes32) {
+    function getExpectedVotingPowerLevel() internal view returns (bytes32) {
         bytes32[] memory publicInputs = getPublicInputs();
         // According to the specification, the voting power should be in the third set of inputs
         bytes memory powerBytes = new bytes(32);
-        for (uint i = 0; i < 32; i++) {
+        for (uint256 i = 0; i < 32; i++) {
             // Take the third 32 values (64-95) and extract just the least significant byte from each
             if (64 + i < 96) {
                 powerBytes[i] = bytes1(uint8(uint256(publicInputs[64 + i])));
@@ -168,15 +152,4 @@ contract TestSetup is Test {
         }
         return bytes32(powerBytes);
     }
-    
-    // Get a valid message for testing that would match the expected hash
-    function getMessage() internal pure returns (string memory) {
-        return "0x02f8cf018203ed841dcd6500844070862b830713eb940000000000572fa1d5fc39988ed0785af08b0d9980b8a47e5c4c080000000000000000000000000000000000000000000000000000000000000040069064e4d68b5b51667b8ff5604ba5eed9260574f85c6ed1c8b2b022ab305488000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000003635c9adc5dea0000000000000000000000000000000000000000000000000010f0cf064dd59200000c0";
-    }
-    
-
-    // Get a valid voting power level for testing that would match the expected value
-    function getVotingPowerLevel() internal pure returns (bytes memory) {
-        return abi.encodePacked(uint224(107272232544679272610965), uint32(0));
-    }
-} 
+}

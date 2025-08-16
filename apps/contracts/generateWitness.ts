@@ -52,30 +52,6 @@ function serialise(val: string, pad: boolean = false) {
     return result;
 }
 
-
-function serialiseAccountProof(proof: string[]): number[] {
-    const MAX_TRIE_NODE_LENGTH = 532;
-    let proofPath: string = "";
-
-    // Concatenate all proof elements with padding
-    for (let i = 0; i < proof.length; i++) {
-        let layer = proof[i] as string;
-        layer = layer.replace("0x", "").padEnd(MAX_TRIE_NODE_LENGTH * 2, '0')
-        proofPath = proofPath + layer
-    }
-
-    return Array.from(Buffer.from(proofPath, "hex"));
-}
-
-function encodeAccountData(nonce: `0x${string}`, balance: `0x${string}`, storageRoot: `0x${string}`, codeHash: `0x${string}`): `0x${string}` {
-    return toRlp([
-        hexToBigInt(nonce) === 0n ? '0x' : nonce,
-        hexToBigInt(balance) === 0n ? '0x' : balance,
-        storageRoot,
-        codeHash
-    ]);
-}
-
 // Calculate storage slot for mapping with address keys using viem
 function calculateMappingSlot(address: string, mappingSlot: number): `0x${string}` {
     // Pad address to 32 bytes
@@ -251,7 +227,7 @@ async function main() {
 
     // In generateWitness.ts, modify the voting_power_threshold initialization:
     // Structs are packed to the right (first bytes are last item in struct)
-    const threshold = 1n;
+    const threshold = 1000_000_000_000_000_000_000n;
     // const threshold = 107272232544679272610965n + 1n;
     const thresholdHex = threshold.toString(16).padStart(56, '0'); // pad to 28 bytes for uint224 (voting power)
     const packedThresholdHex = thresholdHex + "00000000"; // add 4 bytes of zeros at the end for uint32 (block number)
@@ -272,6 +248,25 @@ async function main() {
         signature: signatureBytes,
         public_key: publicKeyBytes
     }
+
+    const concatenatedBytes = [
+        ...checkpointProofData.storage_root,
+        ...msgHashBytes,
+        ...votingPowerThreshold,
+    ];
+    const hexString = '0x' + Buffer.from(concatenatedBytes).toString('hex');
+    console.log("Concatenated hex string public inputs:", hexString);
+
+    const hexStringStorageRoot = '0x' + Buffer.from(checkpointProofData.storage_root).toString('hex');
+    console.log("Storage root hex string:", hexStringStorageRoot);
+
+    const hexStringMessageHash = '0x' + Buffer.from(msgHashBytes).toString('hex');
+    console.log("Message hash hex string:", hexStringMessageHash);
+
+    const hexStringVotingPowerThreshold = '0x' + Buffer.from(votingPowerThreshold).toString('hex');
+    console.log("Voting power threshold hex string:", hexStringVotingPowerThreshold);
+
+
 
     // Initialize Noir and the proving backend
     // Dynamically import the correct circuit file
