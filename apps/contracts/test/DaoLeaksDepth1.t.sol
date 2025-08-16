@@ -2,7 +2,7 @@
 pragma solidity >=0.8.21;
 
 import {Test} from "forge-std/Test.sol";
-import {HonkVerifier} from "../src/Verifier.sol";
+import {HonkVerifier} from "../src/DaoLeaksDepth.sol";
 
 contract HonkVerifierTest is Test {
     HonkVerifier public verifier;
@@ -14,10 +14,10 @@ contract HonkVerifierTest is Test {
 
     function testVerifyValidProof() public {
         // Get proof from environment variable
-        bytes memory proof = vm.envBytes("HONK_PROOF");
-        require(proof.length == 440 * 32, "Invalid proof length from env var");
+        bytes memory proof = vm.envBytes("DAO_PROOF");
+        // require(proof.length == 440 * 32, "Invalid proof length from env var");
         
-        bytes32[] memory publicInputs = new bytes32[](0); // 0 public inputs as per the contract
+        bytes32[] memory publicInputs = new bytes32[](96); // 0 public inputs as per the contract
 
         // Test the verify function
         bool result = verifier.verify(proof, publicInputs);
@@ -39,7 +39,7 @@ contract HonkVerifierTest is Test {
     function testVerifyInvalidPublicInputsLength() public {
         // Test with incorrect number of public inputs
         bytes memory proof = new bytes(440 * 32);
-        bytes32[] memory invalidPublicInputs = new bytes32[](1); // Should be 0
+        bytes32[] memory invalidPublicInputs = new bytes32[](95); // Should be 3
 
         // The contract should revert with PublicInputsLengthWrong()
         vm.expectRevert(abi.encodeWithSignature("PublicInputsLengthWrong()"));

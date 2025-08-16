@@ -255,6 +255,8 @@ async function main() {
 
     const noir = new Noir(circuit);
     const backend = new UltraHonkBackend(circuit.bytecode);
+    
+ 
 
     try {
         console.log("Generating witness...");
@@ -264,6 +266,11 @@ async function main() {
         console.log("Generating proof...");
         const proof = await backend.generateProof(witness);
         console.log("Generated proof ✅");
+
+        console.log("Proof:", toHex(proof.proof));
+        console.log("Proof length:", proof.proof.length);
+        console.log("Proof public inputs:", proof.publicInputs);
+        console.log("Proof public inputs length:", proof.publicInputs.length);
 
         console.log("Verifying proof...");
         const isValid = await backend.verifyProof(proof);
