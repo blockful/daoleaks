@@ -6,6 +6,7 @@
     "ts": "ts-node",
     "anvil": "anvil --fork-url https://eth-mainnet.g.alchemy.com/v2/864ae0IHj8rlKM2OHei4_1CzTV3xUdB5 --fork-block-number 22535641 --auto-impersonate",
     "prepare-tests": "forge script script/PrepareForkTests.s.sol -v --rpc-url http://localhost:8545 --broadcast --unlocked",
+    "forge-test": "forge test --force",
     "test": "pnpm run anvil & sleep 5 && pnpm run prepare-tests && forge test && pnpm run cleanup",
     "setup-devnet": "pnpm run anvil & sleep 5 && (pnpm run deploy-to-devnet || (pnpm run cleanup && exit 1))",
     "deploy-to-devnet": "ts-node getAndSetStorageRoot.ts",
