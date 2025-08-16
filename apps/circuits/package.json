@@ -8,7 +8,8 @@
     "check": "nargo check",
     "write_vk": "bb write_vk -b ./target/circuit.json -o ./target --oracle_hash keccak",
     "write_solidity_verifier": "bb write_solidity_verifier -k ./target/vk -o ../contracts/src/Verifier.sol",
-    "generate-witness": "ts-node generateWitness.ts"
+    "generate-witness": "ts-node generateWitness.ts",
+    "ts": "ts-node"
   },
   "devDependencies": {
     "@aztec/bb.js": "0.72.1",
