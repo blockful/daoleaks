@@ -3,22 +3,11 @@ import { UltraHonkBackend } from '@aztec/bb.js';
 import { Noir } from '@noir-lang/noir_js';
 import { CompiledCircuit } from '@noir-lang/types';
 
-import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, toRlp } from "viem";
+import { keccak256, concat, pad, toHex, http, createPublicClient, hexToBigInt, toRlp, recoverPublicKey, toBytes } from "viem";
 import { mainnet } from "viem/chains";
 
 import fs from 'fs';
-import { getSignatureFromTransaction } from './getTxSingatureData';
-
-import TOML from "@iarna/toml";
-
-
-const memoryUsage = process.memoryUsage();
-  
-  console.log('Memory Usage:');
-  console.log(`- RSS: ${Math.round(memoryUsage.rss / 1024 / 1024)} MB`);
-  console.log(`- Heap Total: ${Math.round(memoryUsage.heapTotal / 1024 / 1024)} MB`);
-  console.log(`- Heap Used: ${Math.round(memoryUsage.heapUsed / 1024 / 1024)} MB`);
-  console.log(`- External: ${Math.round(memoryUsage.external / 1024 / 1024)} MB`);
+import path from 'path';
 
 type StorageProof = {
     storage_proof: number[];
@@ -119,13 +108,18 @@ function calculateArrayElementSlot(arraySlot: `0x${string}`, index: number): `0x
 // Github: https://github.com/alchemyplatform/alchemy-sdk-js
 async function main() {
 
-    const BLOCK_NUMBER = 22524300;
+    // const BLOCK_NUMBER = 22524300;
 
     const client = createPublicClient({
         chain: mainnet,
         // transport: http("https://eth-mainnet.g.alchemy.com/v2/864ae0IHj8rlKM2OHei4_1CzTV3xUdB5")
         transport: http("http://localhost:8545")
     });
+
+
+    // Replace the hard-coded block number with:
+    const BLOCK_NUMBER = await client.getBlockNumber();
+    console.log("BLOCK_NUMBER", BLOCK_NUMBER);
 
     // First, get the block to get the state root
     const block = await client.getBlock({ blockNumber: BigInt(BLOCK_NUMBER) });
@@ -138,10 +132,29 @@ async function main() {
     // Slot for _checkpoints mapping is 7
     const mappingSlot = 7;
 
-    // Calculate the storage slot for the delegate account nick.eth
-    const delegateAccount = "0x983110309620D911731Ac0932219af06091b6744";
+    // Calculate the storage slot for our test account
+    const delegateAccount = "0x4320d597fBd545F8A747f61B209Cf9a106E02e94";
     // Sample tx from delegate to fetch signature from
-    const txHash = "0x6443d2846aa4df6c79ed90200153b70a69664baa01f6349b3c05c699c63f1eaa";
+    const msg = "Signed by Alice";
+    const msgHash = "0x385967023fb9520b497ee37da9c1e3d5faac1385800ce4ed07ca32d7893c7bb5";
+    const signature = "0xdafc88178ce64aec61f6199196b96385071f74359dc96b6d71691121ae7cd03338649ae8d4d598473a2557bef47af629ea188ec0170303c01b1e12fa2b6d2e411c";
+
+    const verifyMsgHash = keccak256(toBytes(msg));
+
+    const signature_64_bytes = signature.slice(0, -2);
+
+    if (verifyMsgHash !== msgHash) {
+        console.log("Message hash does not match");
+        console.log("verifyMsgHash", verifyMsgHash);
+        console.log("msgHash", msgHash);
+        return;
+    }
+
+    const publicKey = await recoverPublicKey({
+        hash: verifyMsgHash,
+        signature: signature
+    });
+    const publicKeyFull = `0x${publicKey.slice(4, 132)}` as `0x${string}`;
 
     const calculatedMappingSlotForKey = calculateMappingSlot(delegateAccount, mappingSlot);
     console.log("calculatedSlot", calculatedMappingSlotForKey);
@@ -155,7 +168,7 @@ async function main() {
         ]
     });
 
-    console.log({contractAddress, calculatedMappingSlotForKey, blockNumber: toHex(BLOCK_NUMBER)});
+    console.log({ contractAddress, calculatedMappingSlotForKey, blockNumber: toHex(BLOCK_NUMBER) });
 
 
     const arrayLengthProof = arrayLengthRes.storageProof[0];
@@ -172,6 +185,8 @@ async function main() {
     // Note: For demonstration, we'll fetch the first checkpoint (index 0)
     // You can loop through all indices if needed
     const indexToFetch = Number(arrayLength) - 1; // Change this to fetch different checkpoints
+
+    console.log("indexToFetch", indexToFetch);
 
     // Calculate the base slot for array data
     // For dynamic arrays, elements are stored at keccak256(slot) + index
@@ -234,21 +249,17 @@ async function main() {
     const mappingSlotBytes = pad(toHex(mappingSlot), { size: 32 });
     const paddedMappingSlot = serialise(mappingSlotBytes);
 
-    // Get sample signature data from delegate account
-    const signatureData = await getSignatureFromTransaction(txHash, delegateAccount);
-
-    if (!signatureData) {
-        console.error("Failed to get signature data");
-        return;
-    }
-
     // In generateWitness.ts, modify the voting_power_threshold initialization:
     // Structs are packed to the right (first bytes are last item in struct)
-    const threshold = 107272232544679272610965n;
+    const threshold = 1n;
     // const threshold = 107272232544679272610965n + 1n;
     const thresholdHex = threshold.toString(16).padStart(56, '0'); // pad to 28 bytes for uint224 (voting power)
     const packedThresholdHex = thresholdHex + "00000000"; // add 4 bytes of zeros at the end for uint32 (block number)
     const votingPowerThreshold = serialise('0x' + packedThresholdHex, true);
+
+    const msgHashBytes = serialise(msgHash);
+    const signatureBytes = serialise(signature_64_bytes);
+    const publicKeyBytes = serialise(publicKeyFull);
 
     const proofData = {
         storage_proof: checkpointProofData.storage_proof,
@@ -256,36 +267,29 @@ async function main() {
         storage_root: checkpointProofData.storage_root,
         padded_mapping_slot: paddedMappingSlot,
         padded_array_index: paddedArrayIndex,
-        public_key: signatureData.noirInputs.public_key,
-        message_hash: signatureData.noirInputs.signed_hash,
-        signature: signatureData.noirInputs.signature,
-        voting_power_threshold: votingPowerThreshold
+        voting_power_threshold: votingPowerThreshold,
+        message_hash: msgHashBytes,
+        signature: signatureBytes,
+        public_key: publicKeyBytes
     }
-
-    // Convert number arrays to hex strings
-    const storageRootHex = '0x' + proofData.storage_root.map(num => num.toString(16).padStart(2, '0')).join('');
-    const messageHashHex = '0x' + proofData.message_hash.map(num => num.toString(16).padStart(2, '0')).join('');
-    const votingPowerThresholdHex = '0x' + proofData.voting_power_threshold.map(num => num.toString(16).padStart(2, '0')).join('');
-    
-    console.log("proofData storage_root (hex):", storageRootHex);
-    console.log("proofData message_hash (hex):", messageHashHex);
-    console.log("proofData voting_power_threshold (hex):", votingPowerThresholdHex);
-    
-    console.log("Saving proofData to Prover.toml...");
-    const proofDataToml = TOML.stringify(proofData);
-    fs.writeFileSync("./Prover.toml", proofDataToml);
-    console.log("Saved proofData to Prover.toml ✅");
-
 
     // Initialize Noir and the proving backend
     // Dynamically import the correct circuit file
-    const circuitData = fs.readFileSync(`./target/dao_leaks_depth_${depth}.json`, 'utf-8');
+    const circuitData = fs.readFileSync(
+        path.resolve(
+            __dirname,           // 1. start at current package root (this file's directory)
+            '..',                // 2. go back one directory
+            'circuits',          // 3. go to circuits directory
+            'target',            // 4. go to target directory (assuming you meant "target" not "targets")
+            `dao_leaks_depth_${depth}.json` // 5. file name with dynamic depth
+        ),
+        'utf-8'
+    );
     const circuit = JSON.parse(circuitData) as unknown as CompiledCircuit;
 
     const noir = new Noir(circuit);
     const backend = new UltraHonkBackend(circuit.bytecode);
-    
- 
+
 
     try {
         console.log("Generating witness...");
