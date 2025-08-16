@@ -227,8 +227,21 @@ async function main() {
         value: checkpointProofData.value,
         storage_root: checkpointProofData.storage_root,
         padded_mapping_slot: paddedMappingSlot,
-        padded_account_address: paddedAccountAddress,
         padded_array_index: paddedArrayIndex,
+        public_key: [
+            114, 39, 29, 34, 73, 21, 180, 22,
+            159, 3, 253, 32, 87, 164, 219, 7,
+            9, 124, 46, 175, 252, 222, 186, 132,
+            143, 63, 249, 164, 47, 140, 23, 19,
+
+
+            232, 207, 173, 209, 28, 206, 89, 22,
+            77, 137, 141, 251, 161, 174, 239, 2,
+            215, 79, 162, 140, 62, 43, 246, 15,
+            37, 162, 158, 149, 184, 230, 140, 94
+        ],
+        message_hash:  [137, 170, 134, 165, 81, 27, 170, 177, 126, 235, 230, 162, 72, 166, 142, 102, 191, 19, 188, 141, 8, 243, 71, 149, 72, 182, 191, 186, 164, 79, 233, 205],
+        signature: [63, 235, 148, 113, 224, 189, 57, 115, 26, 164, 48, 254, 134, 9, 166, 67, 105, 188, 241, 229, 86, 145, 88, 161, 67, 148, 250, 164, 104, 1, 176, 245, 34, 84, 71, 202, 68, 198, 239, 144, 227, 182, 26, 144, 237, 26, 113, 17, 60, 23, 236, 109, 72, 211, 162, 214, 11, 195, 82, 151, 248, 80, 88, 11],
     }
 
     // Initialize Noir and the proving backend
@@ -244,15 +257,15 @@ async function main() {
         const { witness } = await noir.execute(proofData);
         console.log("Generated witness ✅");
 
-        // console.log("Generating proof...");
-        // const proof = await backend.generateProof(witness);
-        // console.log("Generated proof ✅");
+        console.log("Generating proof...");
+        const proof = await backend.generateProof(witness);
+        console.log("Generated proof ✅");
 
-        // console.log("Verifying proof...");
-        // const isValid = await backend.verifyProof(proof);
-        // console.log(`Proof is ${isValid ? "valid ✅" : "invalid ❌"}`);
+        console.log("Verifying proof...");
+        const isValid = await backend.verifyProof(proof);
+        console.log(`Proof is ${isValid ? "valid ✅" : "invalid ❌"}`);
 
-        // return { proof, isValid };
+        return { proof, isValid };
     } catch (error) {
         console.error("Error during proving:", error);
         throw error;

@@ -42,7 +42,7 @@ async function verifyTransactionSender(txHash: `0x${string}`, expectedAddress: s
   }
 }
 
-function getUnsignedTxFromTx(tx: Transaction): TransactionSerializable {
+export function getUnsignedTxFromTx(tx: Transaction): TransactionSerializable {
   const common = {
     chainId: tx.chainId as number,
     nonce: tx.nonce,
@@ -88,16 +88,6 @@ function getUnsignedTxFromTx(tx: Transaction): TransactionSerializable {
         ...common,
       };
 
-    // case 'eip7702': // EIP-7702 (experimental account abstraction proposal)
-    //   return {
-    //     type: 'eip7702',
-    //     maxFeePerGas: tx.maxFeePerGas!,
-    //     maxPriorityFeePerGas: tx.maxPriorityFeePerGas!,
-    //     paymasterAndData: tx.paymasterAndData ?? '0x',
-    //     accessList: tx.accessList ?? [],
-    //     ...common,
-    //   };
-
     default:
       throw new Error(`Unsupported transaction type: ${tx.type}`);
   }
@@ -109,7 +99,6 @@ export function getSignedMessageHash(tx: Transaction): `0x${string}` {
   return keccak256(serialized);
 }
 
-// Option 1: Extract signature from an existing transaction
 async function getSignatureFromTransaction(txHash: `0x${string}`) {
   try {
     // First verify if the transaction is actually from our expected delegate address
