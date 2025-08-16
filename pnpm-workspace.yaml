@@ -1,0 +1,4 @@
+packages:
+  - 'apps/front'
+  - 'apps/contracts'
+  - 'apps/circuits' 
