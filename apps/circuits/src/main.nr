@@ -3,7 +3,7 @@ mod trie_proof;
 fn main(
     // Trie proof (5 levels * rlp encoded branch node size (532 bytes))
     // If you are working with larger tries, you will need to increase this
-    proof: [u8; 3192], 
+    proof: [u8; 4256], 
     
     // The storage slot we would like to prove
     key: [u8;32], 
@@ -15,7 +15,7 @@ fn main(
     value: [u8; 32], 
 ) {
     // Perform trie proof of depth 5
-    let depth = 6;
+    let depth = 8;
 
     let trie_proof = trie_proof::trie_proof::TrieProof {
         key,
