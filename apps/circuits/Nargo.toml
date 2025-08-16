@@ -1,4 +1,4 @@
 [package]
-name = "dao_leaks_depth_1"
+name = "dao_leaks_depth_6"
 authors = ["Jackson, Alekson"]
 type = "bin"

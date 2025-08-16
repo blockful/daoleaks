@@ -20,5 +20,8 @@
     "handlebars": "^4.7.8",
     "ts-node": "^10.9.2",
     "viem": "^2.30.0"
+  },
+  "dependencies": {
+    "@iarna/toml": "^2.2.5"
   }
 }

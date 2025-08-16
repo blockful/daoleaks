@@ -3,13 +3,13 @@ mod trie_proof;
 fn main(
     storage_proof: [u8; {{proof_length}}], // {{depth}} levels * 532 bytes
     value: [u8; 32],
-    storage_root: pub [u8; 32], 
+    storage_root: [u8; 32], 
     padded_mapping_slot: [u8; 32],
     padded_array_index: [u8; 32],
     public_key: [u8; 64],
-    message_hash: pub [u8; 32],
+    message_hash: [u8; 32],
     signature: [u8; 64],
-    voting_power_threshold: pub [u8; 32],
+    voting_power_threshold: [u8; 32],
 ) {
    
     ///////////////////////
