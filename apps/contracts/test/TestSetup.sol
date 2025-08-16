@@ -79,13 +79,14 @@ contract TestSetup is Test {
         verifiers[2] = address(verifier3);
         verifiers[3] = address(verifier4);
         verifiers[4] = address(verifier5);
-        
 
         // Deploy DaoLeaks with the verifiers
-        daoLeaks = new DaoLeaks(
-            verifiers,
-            0xc2222d834d467d4ebdb3db337a0974dac12e00cad5d2aa2050c7bf570ad728eb
-        );
+        address targetAddress = address(0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266); // Your desired address
+
+        bytes memory args = abi.encode(verifiers, getExpectedStorageRoot());
+    
+        deployCodeTo("DaoLeaks.sol", args, targetAddress);
+        daoLeaks = DaoLeaks(targetAddress);
     }
 
     function getPublicInputs() internal view returns (bytes32[] memory) {

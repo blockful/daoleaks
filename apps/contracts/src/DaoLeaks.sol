@@ -13,6 +13,11 @@ contract DaoLeaks {
         uint256 timestamp;
     }
 
+    bytes32 private constant EIP712_DOMAIN_TYPEHASH =
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    bytes32 private constant MESSAGE_TYPEHASH = keccak256("Message(string message)");
+    bytes32 private DOMAIN_SEPARATOR;
+
     Message[] public messages;
 
     HonkVerifier[] public verifiers;
@@ -31,6 +36,16 @@ contract DaoLeaks {
         votingPowerLevels[0] = 1_000 * 10 ** 18;
         votingPowerLevels[1] = 10_000 * 10 ** 18;
         votingPowerLevels[2] = 50_000 * 10 ** 18;
+
+        DOMAIN_SEPARATOR = keccak256(
+            abi.encode(
+                EIP712_DOMAIN_TYPEHASH,
+                keccak256(bytes("DaoLeaks")), // name
+                keccak256(bytes("1")), // version
+                block.chainid,
+                address(this)
+            )
+        );
     }
 
     // Events
@@ -129,12 +144,11 @@ contract DaoLeaks {
         return messages.length / pageSize;
     }
 
-    // Hash message
-    function hashMessage(string memory message) public pure returns (bytes32) {
-        // return keccak256(abi.encodePacked(message));
-        // bytes memory data = hex"02f8cf018203ed841dcd6500844070862b830713eb940000000000572fa1d5fc39988ed0785af08b0d9980b8a47e5c4c080000000000000000000000000000000000000000000000000000000000000040069064e4d68b5b51667b8ff5604ba5eed9260574f85c6ed1c8b2b022ab305488000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000003635c9adc5dea0000000000000000000000000000000000000000000000000010f0cf064dd59200000c0";
+    // Hash message using EIP-712 structured data format
+    function hashMessage(string memory message) public view returns (bytes32) {
+        bytes32 structHash = keccak256(abi.encode(MESSAGE_TYPEHASH, keccak256(bytes(message))));
 
-        return keccak256(abi.encodePacked(message));
+        return keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, structHash));
     }
 
     function getVotingPowerLevel(uint8 level) public view returns (uint224) {
