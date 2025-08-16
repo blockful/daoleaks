@@ -228,6 +228,13 @@ async function main() {
         return;
     }
 
+    // In generateWitness.ts, modify the voting_power_threshold initialization:
+    // Structs are packed to the right (first bytes are last item in struct)
+    const threshold = 107272232544679272610965n;
+    // const threshold = 107272232544679272610965n + 1n;
+    const thresholdHex = threshold.toString(16).padStart(56, '0'); // pad to 28 bytes for uint224 (voting power)
+    const packedThresholdHex = thresholdHex + "00000000"; // add 4 bytes of zeros at the end for uint32 (block number)
+    const votingPowerThreshold = serialise('0x' + packedThresholdHex, true);
 
     const proofData = {
         storage_proof: checkpointProofData.storage_proof,
@@ -237,7 +244,8 @@ async function main() {
         padded_array_index: paddedArrayIndex,
         public_key: signatureData.noirInputs.public_key,
         message_hash: signatureData.noirInputs.signed_hash,
-        signature: signatureData.noirInputs.signature
+        signature: signatureData.noirInputs.signature,
+        voting_power_threshold: votingPowerThreshold
     }
 
     // Initialize Noir and the proving backend

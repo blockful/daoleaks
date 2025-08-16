@@ -3,12 +3,13 @@ mod trie_proof;
 fn main(
     storage_proof: [u8; {{proof_length}}], // {{depth}} levels * 532 bytes
     value: [u8; 32],
-    storage_root: [u8; 32], 
+    storage_root: pub [u8; 32], 
     padded_mapping_slot: [u8; 32],
     padded_array_index: [u8; 32],
     public_key: [u8; 64],
-    message_hash: [u8; 32],
+    message_hash: pub [u8; 32],
     signature: [u8; 64],
+    voting_power_threshold: pub [u8; 32],
 ) {
    
     ///////////////////////
@@ -51,27 +52,26 @@ fn main(
     
     // Verify storage key is correctly derived
     // First get the storage slot for _checkpoints[account]
-    let mut preimage = [0; 64];
+    let mut pre_image = [0; 64];
     for i in 0..32 {
-        preimage[i] = padded_account_address[i];
+        pre_image[i] = padded_account_address[i];
     }
     for i in 0..32 {
-        preimage[i + 32] = padded_mapping_slot[i];
+        pre_image[i + 32] = padded_mapping_slot[i];
     }
-    let first_level = std::hash::keccak256(preimage, 64);
+    let checkpoint_account_slot = std::hash::keccak256(pre_image, 64);
 
-    let array_location = std::hash::keccak256(first_level, 32);
+    let array_slot = std::hash::keccak256(checkpoint_account_slot, 32);
 
-    // add array_location + index_bytes with carry
+    // add array_slot + index_bytes with carry
     let mut computed_key = [0; 32];
     let mut carry = 0;
     for i in 0..32 {
         let pos = 31 - i;
-        let sum = array_location[pos] as u32 + padded_array_index[pos] as u32 + carry;
+        let sum = array_slot[pos] as u32 + padded_array_index[pos] as u32 + carry;
         computed_key[pos] = (sum % 256) as u8;
         carry = sum / 256;
     }
-
 
     let trie_proof = trie_proof::trie_proof::TrieProof {
         key: computed_key,
@@ -80,4 +80,27 @@ fn main(
         value: value,
     };
     assert(trie_proof.verify_storage_root(storage_root));
+
+    ///////////////////////
+    // Assert that voting power >= voting_power_threshold
+    // Struct is packed voting_power (28 bytes) + block_number (4 bytes)
+    
+    // assert voting power >= voting_power_threshold
+    let mut votes_equal_so_far = true;
+    let mut voting_power_gte_threshold = true; // starts true since == is true
+    for i in 0..28 {
+        if votes_equal_so_far {
+            if value[i] > voting_power_threshold[i] {
+                voting_power_gte_threshold = true;
+                votes_equal_so_far = false;
+            } else if value[i] < voting_power_threshold[i] {
+                voting_power_gte_threshold = false;
+                votes_equal_so_far = false;
+            }
+        }
+    }
+
+    assert(voting_power_gte_threshold, "Voting power is less than threshold");
+
+    // assert block number >= last block number
 }
