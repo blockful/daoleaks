@@ -22,7 +22,7 @@ bb prove -b $JSON_FILE -w ./target/witness.gz -o ./target --oracle_hash keccak
 # Converts proof to hex
 PROOF_HEX=$(cat ./target/proof | od -An -v -t x1 | tr -d $' \n' | sed 's/^.\{8\}//')
 
-NUM_PUBLIC_INPUTS=0 # Replace this with the number of public inputs in your circuit
+NUM_PUBLIC_INPUTS=96 # Replace this with the number of public inputs in your circuit
 HEX_PUBLIC_INPUTS=${PROOF_HEX:0:$((32 * $NUM_PUBLIC_INPUTS * 2))}
 SPLIT_HEX_PUBLIC_INPUTS=$(sed -e 's/.\{64\}/"0x&",/g' <<<$HEX_PUBLIC_INPUTS)
 
