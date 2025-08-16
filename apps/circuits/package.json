@@ -5,7 +5,10 @@
   "scripts": {
     "build": "nargo build",
     "test": "nargo test",
-    "check": "nargo check"
+    "check": "nargo check",
+    "compile": "nargo compile",
+    "write_vk": "bb write_vk -b ./target/circuit.json -o ./target --oracle_hash keccak",
+    "write_solidity_verifier": "bb write_solidity_verifier -k ./target/vk -o ../contracts/src/Verifier.sol"
   },
   "dependencies": {
     "@aztec/bb.js": "0.72.1",
